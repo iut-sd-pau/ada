@@ -102,7 +102,7 @@ const _T = {
   fr_requests:{fr:"Demandes recues",en:"Friend requests"},fr_none:{fr:"Aucun ami pour l’instant. Invite quelqu’un par son pseudo !",en:"No friends yet. Invite someone by nickname!"},
   fr_remove:{fr:"Retirer cet ami ?",en:"Remove this friend?"},fr_need_fb:{fr:"Les amis en ligne necessitent Firebase (voir LISEZMOI). Configure-le pour ajouter de vrais joueurs.",en:"Online friends need Firebase. Configure it to add real players."},
   fr_online:{fr:"En ligne",en:"Online"},fr_offline:{fr:"Hors ligne",en:"Offline"},
-  dm_title:{fr:"Discussion",en:"Chat"},dm_ph:{fr:"Écris un message…",en:"Type a message…"},dm_empty:{fr:"Dis bonjour 👋",en:"Say hi 👋"},dm_need_fb:{fr:"Chat indisponible sans Firebase.",en:"Chat unavailable without Firebase."},
+  dm_title:{fr:"Discussion",en:"Chat"},dm_ph:{fr:"Écris un message…",en:"Type a message…"},dm_empty:{fr:"Dis bonjour 👋",en:"Say hi 👋"},dm_need_fb:{fr:"Chat en ligne indisponible. En mode local, ouvre le jeu dans un autre onglet pour discuter.",en:"Online chat unavailable. In local mode, open the game in another tab to chat."},dm_no_target:{fr:"Aucun destinataire. Reviens à l'onglet Amis et choisis un ami.",en:"No recipient. Go back to the Friends tab and pick a friend."},
   comp_title:{fr:"🏆 Competitions",en:"🏆 Competitions"},comp_sub:{fr:"Calendrier mondial 2027 →",en:"World calendar 2027 →"},
   comp_up:{fr:"A venir",en:"Upcoming"},comp_live:{fr:"En direct",en:"Live"},comp_end:{fr:"Termine",en:"Ended"},
   comp_join:{fr:"S’inscrire",en:"Register"},comp_joined:{fr:"Inscrit ✓",en:"Registered ✓"},comp_reward:{fr:"{R} 💎",en:"{R} 💎"},comp_reg_ok:{fr:"Inscription enregistree !",en:"Registered!"},
