@@ -39,11 +39,14 @@ window.addEventListener('load',async()=>{
   // titre = pseudo de l'ami
   try{const u=(await _db.ref('users/'+other).once('value')).val();document.getElementById('ttl').textContent=u?.pseudo||t('dm_title');}catch{document.getElementById('ttl').textContent=t('dm_title');}
   Social.listenDM(other,renderLog);
+  if(typeof Social.markDMRead==='function')Social.markDMRead(other);
+  window.addEventListener('beforeunload',()=>{try{Social.closeDM&&Social.closeDM();}catch(e){}});
   // aide le clavier mobile a s'ouvrir des l'arrivee sur la page
   setTimeout(()=>{try{input.focus();}catch(e){}},250);
 });
 function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function renderLog(msgs){
+  if(typeof Social!=='undefined'&&Social.markDMRead&&other)Social.markDMRead(other);
   const el=document.getElementById('log');
   if(!msgs.length){el.innerHTML='<div class="psi" style="color:var(--txd);text-align:center;padding:20px">'+t('dm_empty')+'</div>';return;}
   el.innerHTML=msgs.map(m=>{const mine=m.from===myUidV;const d=new Date(m.ts);const hh=('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2);
