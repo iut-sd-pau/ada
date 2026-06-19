@@ -316,6 +316,10 @@ function compStatus(c){
    E) NOTIFICATIONS (local + alimentees par la couche sociale)
 ============================================================ */
 function _notifs(){try{return JSON.parse(localStorage.getItem('fb_notifs')||'[]');}catch{return[];}}
+/* suivi des DM deja vus : { otherUid: dernierTsNotifie } */
+let _openDM=null;
+function _dmSeen(){try{return JSON.parse(localStorage.getItem('fb_dm_seen')||'{}');}catch{return{};}}
+function _saveDmSeen(o){try{localStorage.setItem('fb_dm_seen',JSON.stringify(o||{}));}catch{}}
 function _saveNotifs(a){try{localStorage.setItem('fb_notifs',JSON.stringify(a.slice(0,60)));}catch{}}
 function addNotif(type,data){
   const a=_notifs();
@@ -436,8 +440,12 @@ const Social={
   thread(a,b){return [a,b].sort().join('__');},
   async sendDM(toUid,msg){
     if(!this.ok())return;msg=(msg||'').trim().slice(0,300);if(!msg)return;
-    const me=loadProfile();
-    try{await _db.ref('dm/'+this.thread(myUid(),toUid)).push({from:myUid(),name:me.pseudo,msg,ts:Date.now()});}catch{}
+    const me=loadProfile();const ts=Date.now();
+    try{
+      await _db.ref('dm/'+this.thread(myUid(),toUid)).push({from:myUid(),name:me.pseudo,msg,ts});
+      // pointeur dans la boite de reception de l'autre -> sert a generer la notif "DM recu"
+      await _db.ref('inbox/'+toUid+'/'+myUid()).set({from:myUid(),name:me.pseudo,msg,ts});
+    }catch{}
   },
   listenDM(otherUid,cb){if(!this.ok()){cb&&cb([]);return ()=>{};}
     const ref=_db.ref('dm/'+this.thread(myUid(),otherUid)).limitToLast(80);
@@ -451,7 +459,29 @@ const Social={
     this.listenRequests();
     // echanges entrants
     _db.ref('trades/'+myUid()).on('child_added',s=>{const tr=s.val();if(tr&&tr.status==='pending')addNotif('trade',{pseudo:tr.fromPseudo,id:s.key});});
+    // ---- DM recus ----
+    _db.ref('inbox/'+myUid()).on('value',s=>{
+      const d=s.val()||{};
+      const seen=_dmSeen();let changed=false;
+      Object.entries(d).forEach(([fromUid,m])=>{
+        if(!m||!m.ts)return;
+        if((seen[fromUid]||0) < m.ts){
+          // ne pas notifier la discussion actuellement ouverte
+          if(_openDM!==fromUid){addNotif('dm',{uid:fromUid,pseudo:m.name||'?',msg:m.msg||'',ts:m.ts});}
+          seen[fromUid]=m.ts;changed=true;
+        }
+      });
+      if(changed)_saveDmSeen(seen);
+    });
   },
+  /* marque la discussion avec otherUid comme lue (appele a l'ouverture du chat) */
+  markDMRead(otherUid){
+    if(!otherUid)return;_openDM=otherUid;
+    const seen=_dmSeen();seen[otherUid]=Date.now();_saveDmSeen(seen);
+    try{ if(this.ok()) _db.ref('inbox/'+myUid()+'/'+otherUid).remove(); }catch{}
+  },
+  /* a appeler quand on quitte une discussion */
+  closeDM(){_openDM=null;},
 
   /* ECHANGE de cartes : reel via Firebase comme bus de messages.
      L'initiateur propose 'give' (cartes qu'il donne) contre 'want'.
