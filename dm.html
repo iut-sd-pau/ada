@@ -4,9 +4,10 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script src="i18n.js"></script><script src="localnet.js"></script><script src="engine.js"></script><script src="audio.js"></script><script src="boost.js"></script>
 <style>
-body{padding-bottom:0;}
+body{padding-bottom:96px;}
 .wrap{display:flex;flex-direction:column;align-items:center;padding:0 14px;width:100%;}
-.dmfoot{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;padding:10px 14px 18px;background:rgba(6,6,15,.96);border-top:1px solid var(--br);backdrop-filter:blur(20px);}
+.dmfoot{position:fixed;bottom:0;left:0;right:0;z-index:100;display:flex;justify-content:center;padding:10px 14px 18px;background:rgba(6,6,15,.96);border-top:1px solid var(--br);backdrop-filter:blur(20px);}
+.dmrow input{flex:1;min-width:0;}
 .dmrow{display:flex;gap:8px;width:100%;max-width:460px;}
 .dmrow input{flex:1;padding:12px 14px;background:rgba(255,255,255,.06);border:1px solid var(--br);border-radius:var(--rmd);color:var(--tx);font-size:.92rem;}
 .dmrow input:focus{outline:none;border-color:var(--c);}
@@ -22,13 +23,24 @@ body{padding-bottom:0;}
 const params=new URLSearchParams(location.search);const other=params.get('u');let myUidV;
 window.addEventListener('load',async()=>{
   Audio.init();
-  document.getElementById('msg').placeholder=t('dm_ph');
+  const input=document.getElementById('msg');
+  input.placeholder=t('dm_ph');
   myUidV=myUid();
-  if(typeof Social==='undefined'||!Social.ok()||!other){document.getElementById('log').innerHTML='<div class="psi" style="color:var(--txd);text-align:center;padding:30px">'+t('dm_need_fb')+'</div>';document.getElementById('ttl').textContent=t('dm_title');return;}
+  // S'assurer que le backend (Firebase OU mode local) est initialise
+  if(typeof fbReady==='function'&&!fbReady()&&typeof _initFB==='function'){try{_initFB();}catch(e){}}
+  // On cable TOUJOURS le clavier et l'envoi, meme si le backend tarde,
+  // pour que la barre de saisie ne soit jamais "morte".
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send();}});
+  document.getElementById('ttl').textContent=t('dm_title');
+  // Pas de destinataire dans l'URL -> on ne peut pas ouvrir de discussion
+  if(!other){document.getElementById('log').innerHTML='<div class="psi" style="color:var(--txd);text-align:center;padding:30px">'+t('dm_no_target')+'</div>';input.disabled=true;return;}
+  // Aucun backend disponible du tout (ni Firebase, ni mode local) -> message clair
+  if(typeof Social==='undefined'||!Social.ok()){document.getElementById('log').innerHTML='<div class="psi" style="color:var(--txd);text-align:center;padding:30px">'+t('dm_need_fb')+'</div>';return;}
   // titre = pseudo de l'ami
   try{const u=(await _db.ref('users/'+other).once('value')).val();document.getElementById('ttl').textContent=u?.pseudo||t('dm_title');}catch{document.getElementById('ttl').textContent=t('dm_title');}
   Social.listenDM(other,renderLog);
-  document.getElementById('msg').addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+  // aide le clavier mobile a s'ouvrir des l'arrivee sur la page
+  setTimeout(()=>{try{input.focus();}catch(e){}},250);
 });
 function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
 function renderLog(msgs){
@@ -38,5 +50,5 @@ function renderLog(msgs){
     return '<div class="dmsg '+(mine?'me':'them')+'">'+esc(m.msg)+'<div class="dmtime">'+hh+'</div></div>';}).join('');
   el.scrollTop=el.scrollHeight;
 }
-function send(){const i=document.getElementById('msg');const v=i.value.trim();if(!v||!other)return;Social.sendDM(other,v);i.value='';SFX.select();}
+function send(){const i=document.getElementById('msg');const v=i.value.trim();if(!v||!other)return;Social.sendDM(other,v);i.value='';SFX.select();try{i.focus();}catch(e){}}
 </script></body></html>
