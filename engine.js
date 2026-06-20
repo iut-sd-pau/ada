@@ -526,12 +526,16 @@ const Online = {
     const word=pool[Math.floor(Math.random()*pool.length)];
     (this._used=this._used||new Set()).add(word);
     const _diff0=this.meta?.diff||'normal';
+    const _fl=foldAccents((word||'a').toLowerCase())[0];
+    const hardPool=HARD_ONLINE.filter(id=>onlineRuleFeasible(id,_fl));
+    const allPool=ONLINE_RULE_POOL.filter(id=>onlineRuleFeasible(id,_fl));
     let rule;
     if((_diff0==='hard'||_diff0==='extreme')&&Math.random()<(_diff0==='extreme'?0.75:0.5)){
-      rule=HARD_ONLINE[Math.floor(Math.random()*HARD_ONLINE.length)];
+      rule=(hardPool.length?hardPool:allPool)[Math.floor(Math.random()*(hardPool.length?hardPool.length:allPool.length))];
     }else{
-      rule=ONLINE_RULE_POOL[Math.floor(Math.random()*ONLINE_RULE_POOL.length)];
+      rule=allPool[Math.floor(Math.random()*allPool.length)];
     }
+    if(!rule)rule='long';
     const diff=_diff0;
     const flashWindow=({easy:9,normal:7,hard:5,extreme:4}[diff]||7);
     const g={round,maxRounds:maxRounds||(this.game?.maxRounds||5),phase:'countdown',
@@ -640,25 +644,46 @@ const Online = {
 };
 
 /* --- regles utilisees en ligne (sous-ensemble lisible) --- */
+/* Regles online : memes ids que le local (pour reutiliser les libelles).
+   Aucune regle imposant la 1re lettre (conflit avec "meme 1re lettre"). */
 const ONLINE_RULES={
-  vowel:{check:w=>'aeiouy'.includes(foldAccents(w)[0])},
-  cons:{check:w=>'bcdfghjklmnpqrstvwxz'.includes(foldAccents(w)[0])},
   long:{check:w=>w.length>=6},
   short:{check:w=>w.length<=4},
+  long7:{check:w=>w.length>=7},
+  long8:{check:w=>w.length>=8},
   five:{check:w=>w.length===5},
-  end_e:{check:w=>w.endsWith('e')},
+  six:{check:w=>w.length===6},
+  four:{check:w=>w.length===4},
+  len_even:{check:w=>w.length%2===0},
+  len_odd:{check:w=>w.length%2===1},
+  end_e:{check:w=>foldAccents(w).endsWith('e')},
+  end_s:{check:w=>foldAccents(w).endsWith('s')},
+  end_vowel:{check:w=>'aeiouy'.includes(foldAccents(w).slice(-1))},
+  end_cons:{check:w=>'bcdfghjklmnpqrstvwxz'.includes(foldAccents(w).slice(-1))},
+  double:{check:w=>/(.)\1/.test(foldAccents(w))},
+  two_vowels:{check:w=>(foldAccents(w).match(/[aeiouy]/g)||[]).length>=2},
+  three_vowels:{check:w=>(foldAccents(w).match(/[aeiouy]/g)||[]).length>=3},
+  has_r:{check:w=>foldAccents(w).includes('r')},
+  repeat_letter:{check:w=>{const o={};for(const ch of foldAccents(w)){o[ch]=(o[ch]||0)+1;if(o[ch]>=2)return true;}return false;}},
   no_a:{check:w=>!foldAccents(w).includes('a')},
   no_e:{check:w=>!foldAccents(w).includes('e')},
-  no_s:{check:w=>!w.includes('s')},
-  two_vowels:{check:w=>(foldAccents(w).match(/[aeiouy]/g)||[]).length>=2},
-  long7:{check:w=>w.length>=7},
-  three_vowels:{check:w=>(foldAccents(w).match(/[aeiouy]/g)||[]).length>=3},
-  end_vowel:{check:w=>'aeiouy'.includes(foldAccents(w).slice(-1))},
-  no_vowel_start:{check:w=>!'aeiouy'.includes(foldAccents(w)[0])},
-  no_e_long:{check:w=>!foldAccents(w).includes('e')&&w.length>=5},
+  no_s:{check:w=>!foldAccents(w).includes('s')},
+  no_i:{check:w=>!foldAccents(w).includes('i')},
+  no_e_long:{check:w=>!foldAccents(w).includes('e')&&w.length>=6},
 };
-const HARD_ONLINE=['long7','three_vowels','no_e_long','no_vowel_start','end_vowel'];
+const HARD_ONLINE=['long7','long8','three_vowels','no_e_long','no_a','no_e','no_i','six','repeat_letter','end_cons'];
 const ONLINE_RULE_POOL=Object.keys(ONLINE_RULES);
+/* satisfiable pour un mot commencant par `fl` ? (meme logique que le local) */
+function onlineRuleFeasible(id,fl){
+  switch(id){
+    case 'no_a':return fl!=='a';
+    case 'no_e':case 'no_e_long':return fl!=='e';
+    case 'no_i':return fl!=='i';
+    case 'no_s':return fl!=='s';
+    case 'four':case 'five':case 'six':case 'long8':return !'kwxyz'.includes(fl);
+    default:return true;
+  }
+}
 
 /* ============================================================
    11) UTILS + INIT
