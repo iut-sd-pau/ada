@@ -45,7 +45,7 @@ const CATS=[
   {k:'av_aura',  field:'aura',     arr:AV_AURAS,     kind:'part'},
   {k:'av_outfit',field:'outfit',   arr:AV_OUTFITS,   kind:'color'},
 ];
-let cur, activeTab=0;
+let cur, activeTab=0, optCap=72;
 window.addEventListener('load',()=>{
   Audio.init();Audio.playMenu();
   const p=loadProfile();cur={...DEFAULT_AVATAR,...(p.avatar||{})};
@@ -60,30 +60,37 @@ function renderBig(){document.getElementById('big').innerHTML=renderAvatar(cur,1
 function renderTabs(){
   document.getElementById('tabs').innerHTML=CATS.map((c,i)=>'<div class="avtab '+(i===activeTab?'active':'')+'" onclick="setTab('+i+')">'+t(c.k)+'</div>').join('');
 }
-function setTab(i){activeTab=i;SFX.select();renderTabs();renderOpts();}
+function setTab(i){activeTab=i;optCap=72;SFX.select();renderTabs();renderOpts();}
+function moreOpts(){optCap+=72;SFX.tick&&SFX.tick();renderOpts();}
 function renderOpts(){
   const p=loadProfile();const c=CATS[activeTab];
   const el=document.getElementById('opts');
-  el.innerHTML=c.arr.map(opt=>{
+  // categories rendues par pastille de couleur (leger) : peau + aura
+  const swatchCat=(c.field==='skin'||c.field==='aura');
+  const list=c.arr;const shown=list.slice(0,optCap);
+  let html=shown.map(opt=>{
     if(c.kind==='color'){
       const val=opt; const sel=cur[c.field]===val;
       return '<div class="avopt '+(sel?'sel':'')+'" onclick="pickColor(\''+c.field+'\',\''+val+'\')"><div class="swatch" style="background:'+val+'"></div></div>';
     }
     const id=opt.id; const sel=cur[c.field]===id;
     const owned=ownsItem(p,c.field,opt); const rankOk=itemUnlockedByRank(p,opt);
-    const preview={...cur,[c.field]:id};
     let thumb;
-    if(c.field==='skin'&&c.swatch){thumb='<div class="swatch" style="background:'+opt.c+'"></div>';}
-    else {thumb=renderAvatar(preview,58);}
+    if(swatchCat){
+      const col=(opt.c==='rainbow')?'conic-gradient(from 0deg,#ff4b4b,#ffd166,#7CFC9B,#00e5ff,#a855f7,#ff4b4b)':(opt.c==='gold'?'radial-gradient(circle,#fff2b0,#ffb200)':(opt.c||'#222'));
+      thumb='<div class="swatch" style="background:'+col+'"></div>';
+    } else {
+      thumb=renderAvatar({...cur,[c.field]:id},58);
+    }
     let price='';
-    if(opt.cost){
-      if(!owned){
-        const cls=opt.cur==='gem'?'avprice gem':'avprice';
-        price='<div class="'+cls+'">'+(rankOk?(opt.cost+(opt.cur==='gem'?' 💎':' 🪙')):('🔒 '+t('rank_'+opt.req)))+'</div>';
-      }
+    if(opt.cost&&!owned){
+      const cls=opt.cur==='gem'?'avprice gem':'avprice';
+      price='<div class="'+cls+'">'+(rankOk?(opt.cost+(opt.cur==='gem'?' 💎':' 🪙')):('🔒 '+t('rank_'+opt.req)))+'</div>';
     }
     return '<div class="avopt '+(sel?'sel':'')+' '+((!owned&&!rankOk)?'locked':'')+'" onclick="pickPart('+activeTab+',\''+id+'\')">'+thumb+price+'</div>';
   }).join('');
+  if(list.length>optCap)html+='<div class="avopt" style="display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="moreOpts()">➕</div>';
+  el.innerHTML=html;
 }
 function pickColor(field,val){cur[field]=val;SFX.select();renderBig();renderOpts();}
 function pickPart(catIdx,id){
