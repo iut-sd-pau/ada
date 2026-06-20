@@ -187,35 +187,65 @@ async function liveCheck(val){
 /* ===================================================================
    MODE LOCAL (solo / local / daily)  -- tour par tour sur l'appareil
 =================================================================== */
+/* IMPORTANT : la reponse doit deja commencer par la MEME 1re lettre que le
+   mot flashe. On ne met donc AUCUNE regle qui impose la 1re lettre
+   (ex "commence par une voyelle/consonne") car elle entrerait en conflit.
+   Les regles "sans lettre X" sont filtrees quand le mot impose justement X. */
 const ALL_RULES=[
-  {id:'no_e',check:w=>!foldAccents(w).includes('e')},
-  {id:'no_a',check:w=>!foldAccents(w).includes('a')},
+  /* longueur (seuils, toujours faisables) */
   {id:'long',check:w=>w.length>=6},
   {id:'short',check:w=>w.length<=4},
-  {id:'vowel',check:w=>'aeiouy'.includes(foldAccents(w)[0])},
-  {id:'double',check:w=>/(.)\1/.test(w)},
-  {id:'no_s',check:w=>!w.includes('s')},
-  {id:'five',check:w=>w.length===5},
-  {id:'no_i',check:w=>!foldAccents(w).includes('i')},
-  {id:'long8',check:w=>w.length>=8},
-  {id:'cons',check:w=>'bcdfghjklmnpqrstvwxz'.includes(foldAccents(w)[0])},
-  {id:'end_e',check:w=>w.endsWith('e')},
-  {id:'no_r',check:w=>!w.includes('r')},
-  {id:'three',check:w=>w.length===3},
-  {id:'no_t',check:w=>!w.includes('t')},
-  {id:'no_n',check:w=>!w.includes('n')},
-  {id:'two_vowels',check:w=>(foldAccents(w).match(/[aeiouy]/g)||[]).length>=2},
-  /* --- regles plus corsees (apparaissent surtout en hard/extreme) --- */
   {id:'long7',check:w=>w.length>=7},
-  {id:'three_vowels',check:w=>(foldAccents(w).match(/[aeiouy]/g)||[]).length>=3},
-  {id:'no_vowel_start',check:w=>!'aeiouy'.includes(foldAccents(w)[0])},
+  {id:'long8',check:w=>w.length>=8},
+  /* longueur exacte */
+  {id:'three',check:w=>w.length===3},
+  {id:'four',check:w=>w.length===4},
+  {id:'five',check:w=>w.length===5},
+  {id:'six',check:w=>w.length===6},
+  /* parite de la longueur */
+  {id:'len_even',check:w=>w.length%2===0},
+  {id:'len_odd',check:w=>w.length%2===1},
+  /* terminaison (porte sur la fin, jamais en conflit avec la 1re lettre) */
+  {id:'end_e',check:w=>foldAccents(w).endsWith('e')},
+  {id:'end_s',check:w=>foldAccents(w).endsWith('s')},
   {id:'end_vowel',check:w=>'aeiouy'.includes(foldAccents(w).slice(-1))},
-  {id:'palindrome_letter',check:w=>foldAccents(w)[0]===foldAccents(w).slice(-1)},
+  {id:'end_cons',check:w=>'bcdfghjklmnpqrstvwxz'.includes(foldAccents(w).slice(-1))},
+  /* contenu present */
+  {id:'double',check:w=>/(.)\1/.test(foldAccents(w))},
+  {id:'two_vowels',check:w=>(foldAccents(w).match(/[aeiouy]/g)||[]).length>=2},
+  {id:'three_vowels',check:w=>(foldAccents(w).match(/[aeiouy]/g)||[]).length>=3},
+  {id:'has_r',check:w=>foldAccents(w).includes('r')},
+  {id:'repeat_letter',check:w=>{const o={};for(const ch of foldAccents(w)){o[ch]=(o[ch]||0)+1;if(o[ch]>=2)return true;}return false;}},
+  /* contenu absent (filtrees si le mot impose la lettre interdite) */
+  {id:'no_e',check:w=>!foldAccents(w).includes('e')},
+  {id:'no_a',check:w=>!foldAccents(w).includes('a')},
+  {id:'no_s',check:w=>!foldAccents(w).includes('s')},
+  {id:'no_i',check:w=>!foldAccents(w).includes('i')},
+  {id:'no_r',check:w=>!foldAccents(w).includes('r')},
+  {id:'no_t',check:w=>!foldAccents(w).includes('t')},
+  {id:'no_n',check:w=>!foldAccents(w).includes('n')},
+  /* corsees */
   {id:'no_e_long',check:w=>!foldAccents(w).includes('e')&&w.length>=6},
-  {id:'six_plus_double',check:w=>w.length>=6&&/(.)\1/.test(w)},
+  {id:'six_plus_double',check:w=>w.length>=6&&/(.)\1/.test(foldAccents(w))},
 ];
-const EASY_RULES=['vowel','cons','long','short','end_e','two_vowels','five'];
-const HARD_RULES=['no_e','no_a','no_s','no_i','long8','long7','three_vowels','no_e_long','six_plus_double','palindrome_letter','no_vowel_start'];
+/* une regle est-elle satisfiable pour un mot commencant par la lettre `fl` ? */
+function ruleFeasible(id,fl){
+  switch(id){
+    case 'no_a':return fl!=='a';
+    case 'no_e':case 'no_e_long':return fl!=='e';
+    case 'no_i':return fl!=='i';
+    case 'no_r':return fl!=='r';
+    case 'no_s':return fl!=='s';
+    case 'no_t':return fl!=='t';
+    case 'no_n':return fl!=='n';
+    // longueurs exactes / 8+ : risquees pour les lettres rares en debut de mot
+    case 'three':case 'four':case 'five':case 'six':case 'long8':case 'six_plus_double':
+      return !'kwxyz'.includes(fl);
+    default:return true; // seuils de longueur, parite, terminaisons, contenu present
+  }
+}
+const EASY_RULES=['long','short','five','two_vowels','end_e','end_vowel','len_even','len_odd','double','has_r'];
+const HARD_RULES=['long7','long8','three_vowels','no_e_long','no_a','no_e','no_i','no_s','no_t','no_n','six','four','repeat_letter','six_plus_double','end_cons'];
 /* DTIME = secondes par tour ; DXP = XP par bonne reponse.
    easy reste accessible, mais normal/hard sont nettement plus durs et
    un nouveau palier "extreme" arrive. Le temps diminue aussi au fil
@@ -270,23 +300,26 @@ function startCountdownLocal(){
     else{clearInterval(iv);num.textContent='GO!';num.style.color='var(--fl)';SFX.go();narrate('go');setTimeout(()=>{ov.classList.add('hidden');newRoundL();},700);}
   },900);
 }
-function pickRuleL(round){
+function pickRuleL(round,word){
+  const fl=foldAccents((word||L.word||'a').toLowerCase())[0];
+  const ok=r=>ruleFeasible(r.id,fl);
+  const all=ALL_RULES.filter(ok);
   const d=L.DIFF;
   if(d==='hard'||d==='extreme'){
-    // surtout des regles corsees, melangees a quelques classiques
-    const pool=ALL_RULES.filter(r=>HARD_RULES.includes(r.id));
-    if(d==='extreme'||Math.random()<0.75)return pickRandom(pool.length?pool:ALL_RULES);
-    return pickRandom(ALL_RULES);
+    const pool=all.filter(r=>HARD_RULES.includes(r.id));
+    if(d==='extreme'||Math.random()<0.75)return pickRandom(pool.length?pool:all);
+    return pickRandom(all);
   }
-  if(d==='easy'&&round<=2)return pickRandom(ALL_RULES.filter(r=>EASY_RULES.includes(r.id)));
-  if(d==='normal'&&round<=1)return pickRandom(ALL_RULES.filter(r=>EASY_RULES.includes(r.id)));
-  return pickRandom(ALL_RULES);
+  if(d==='easy'&&round<=2){const e=all.filter(r=>EASY_RULES.includes(r.id));return pickRandom(e.length?e:all);}
+  if(d==='normal'&&round<=1){const e=all.filter(r=>EASY_RULES.includes(r.id));return pickRandom(e.length?e:all);}
+  return pickRandom(all.length?all:ALL_RULES);
 }
 /* temps de base avec rampe : -1s toutes les 2 manches (plancher) */
 function baseTime(){
   const floors={easy:5,normal:3,hard:2,extreme:1,daily:4};
   const base=DTIME[L.DIFF]||5;
-  return Math.max(floors[L.DIFF]||3, base-Math.floor((L.round-1)/2));
+  const deckT=(typeof deckTime==='function')?deckTime():0; // bonus de temps des cartes du deck
+  return deckT+Math.max(floors[L.DIFF]||3, base-Math.floor((L.round-1)/2));
 }
 function flashBonus(){return ({easy:9,normal:7,hard:5,extreme:4,daily:7})[L.DIFF]||7;}
 function newRoundL(){
@@ -294,8 +327,8 @@ function newRoundL(){
   L.fp=false;
   let pool=getGameWords(lang).filter(w=>!L.used.has(w));if(!pool.length){L.used.clear();pool=getGameWords(lang);}
   L.word=pickRandom(pool);L.used.add(L.word);
-  if(L.MODE==='daily'){const ds=sessionStorage.getItem('fb_daily_rule');const found=ALL_RULES.find(r=>t('rule_'+r.id)===ds);L.rule=found||pickRandom(ALL_RULES);}
-  else L.rule=pickRuleL(L.round);
+  if(L.MODE==='daily'){const ds=sessionStorage.getItem('fb_daily_rule');const found=ALL_RULES.find(r=>t('rule_'+r.id)===ds);const fl=foldAccents(L.word.toLowerCase())[0];L.rule=(found&&ruleFeasible(found.id,fl))?found:pickRuleL(L.round,L.word);}
+  else L.rule=pickRuleL(L.round,L.word);
   L.tLeft=baseTime();
   const wEl=document.getElementById('gw');wEl.style.cssText='opacity:0;transform:scale(.65);transition:none';
   document.getElementById('gr').textContent=t('rule_'+L.rule.id);
@@ -360,6 +393,13 @@ function endGameLocal(){
   if(L.bestStreak>profile.bestStreak)profile.bestStreak=L.bestStreak;
   if(L.missed===0&&L.correct>0)profile.perfectGames=(profile.perfectGames||0)+1;
   if(L.fastAnswers>=5)profile.fastAnswers=(profile.fastAnswers||0)+L.fastAnswers;
+  // record de meilleure partie en X/Y (solo & defi) : plus de bonnes reponses, puis meilleur ratio
+  if(L.MODE==='solo'||L.MODE==='daily'){
+    const att=L.correct+L.missed;const prev=profile.bestGame||{correct:0,rounds:0};
+    if(att>0&&(L.correct>prev.correct||(L.correct===prev.correct&&att<(prev.rounds||999)))){
+      profile.bestGame={correct:L.correct,rounds:att};
+    }
+  }
   const xpStart=profile.xp,gemStart=(profile.gems||0);
   let coinsWon=Math.round(L.correct*2*(L.MODE==='daily'?2:1));
   profile.coins=(profile.coins||0)+coinsWon;
@@ -368,6 +408,7 @@ function endGameLocal(){
   if(L.missed===0&&L.correct>=3)gemsManual+=2;          // bonus partie parfaite
   if(L.MODE==='daily')gemsManual+=3;                    // bonus defi du jour
   gemsManual+=(getRank(profile.xp).gemDrip||0);         // goutte de grade (passif, avantage de grade)
+  if(typeof deckGem==='function')gemsManual+=deckGem(profile); // gemmes des cartes du deck
   profile.gems=gemStart+gemsManual;
   if(L.MODE==='daily'){profile.dailyCount=(profile.dailyCount||0)+1;profile.lastDaily=new Date().toDateString();}
   let winner=L.players[0],maxPts=-1;L.players.forEach(p=>{if(L.scores[p]>maxPts){maxPts=L.scores[p];winner=p;}});
@@ -542,6 +583,7 @@ function finishOnline(g){
   if(iWon)gemsManual+=5;                                // victoire en ligne
   if(myScore>=5)gemsManual+=2;                          // belle perf
   gemsManual+=(getRank(profile.xp).gemDrip||0);         // goutte de grade
+  if(typeof deckGem==='function')gemsManual+=deckGem(profile); // gemmes des cartes du deck
   profile.gems=gemStart+gemsManual;
   saveProfile(profile);
   // XP online : 8 par point, via addXP() (multiplicateur de grade + recompenses de montee)
