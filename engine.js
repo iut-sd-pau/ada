@@ -151,7 +151,7 @@ function getXPPct(xp){const r=getRank(xp),n=getNextRank(xp);if(!n)return 100;ret
 /* ============================================================
    6) PROFIL + PIECES + JOKERS
 ============================================================ */
-const DEFAULT_AVATAR={skin:'sk2',face:'fa1',eyes:'ey1',hair:'ha0',hairColor:'#3a2a20',hat:'no',outfit:'#00e5ff',aura:'au0'};
+const DEFAULT_AVATAR={skin:'sk2',face:'fa1',eyes:'ey1',hair:'ha0',hairColor:'#3a2a20',hat:'no',outfit:'#00e5ff',outfitStyle:'os0',aura:'au0'};
 const DP={pseudo:'',xp:0,coins:0,gems:0,gamesPlayed:0,wins:0,bestStreak:0,totalCorrect:0,
   firstTime:true,achievements:[],createdAt:null,dailyCount:0,onlineWins:0,lastDaily:null,
   perfectGames:0,fastAnswers:0,jokers:{skip:1,time:1,hint:1},arcadeBest:{},
