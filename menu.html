@@ -9,7 +9,7 @@ body{padding-bottom:80px;}
 .hb{font-size:3.5rem;animation:blt 2.5s ease-in-out infinite alternate;filter:drop-shadow(0 0 16px var(--c));}
 @keyframes blt{from{transform:scale(.88)}to{transform:scale(1.1)}}
 .hn{font-family:var(--ac);font-size:1.5rem;font-weight:900;color:var(--c);text-shadow:0 0 20px var(--cg);}
-.qs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:440px;padding:0 20px;margin-bottom:4px;}
+.qs{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:8px;width:100%;max-width:460px;padding:0 20px;margin-bottom:4px;}
 .qc{display:flex;flex-direction:column;align-items:center;gap:4px;padding:11px 6px;background:var(--bc);border:1px solid var(--br);border-radius:var(--rmd);}
 .qv{font-family:var(--ac);font-size:1.1rem;font-weight:700;}.ql{font-size:.55rem;color:var(--txd);text-transform:uppercase;letter-spacing:.05em;}
 .sec{width:100%;max-width:440px;padding:0 20px;margin-top:16px;}
@@ -43,6 +43,7 @@ body{padding-bottom:80px;}
     <div class="qc"><div class="qv" id="qco" style="color:var(--go)">0</div><div class="ql" id="qcol"></div></div>
     <div class="qc"><div class="qv" id="qgm" style="color:var(--pu)">0</div><div class="ql" id="qgml"></div></div>
     <div class="qc"><div class="qv" id="qst" style="color:var(--fl)">0</div><div class="ql" id="qstl"></div></div>
+    <div class="qc"><div class="qv" id="qpf" style="color:var(--c)">0</div><div class="ql" id="qpfl"></div></div>
   </div>
   <div class="sec" style="margin-top:20px">
     <div class="sec-t" id="dlbl"></div>
@@ -84,11 +85,13 @@ window.addEventListener('load',()=>{
   document.getElementById('qxp').textContent=p.xp;
   document.getElementById('qco').textContent=p.coins||0;
   document.getElementById('qgm').textContent=p.gems||0;
-  document.getElementById('qst').textContent=p.bestGame?(p.bestGame.correct+'/'+p.bestGame.rounds):(p.bestStreak||0);
+  document.getElementById('qst').textContent=p.bestStreak||0;
+  document.getElementById('qpf').textContent=p.perfectGames||0;
   document.getElementById('qxpl').textContent=t('menu_xp');
   document.getElementById('qcol').textContent=t('menu_coins');
   document.getElementById('qgml').textContent=t('cur_gems');
-  document.getElementById('qstl').textContent=t('menu_record');
+  document.getElementById('qstl').textContent=t('menu_streak');
+  document.getElementById('qpfl').textContent=t('menu_perfect');
   document.getElementById('dlbl').textContent=t('menu_daily_lbl');
   const dn=Math.floor(Date.now()/86400000)%999+1;
   document.getElementById('dcn').textContent=t('menu_daily_ch')+dn;
