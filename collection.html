@@ -101,7 +101,7 @@ function refreshAll(){const p=loadProfile();
   document.getElementById('recybtn').textContent=t('col_recycle');
   document.getElementById('recybtn').style.opacity=dups?'1':'.45';
   renderBook();renderDeck();}
-function bonusLabel(b){const v=b.type==='joker'?b.val:Math.round(b.val*100);return t('col_bonus_'+b.type,{V:v});}
+function bonusLabel(b){const v=(b.type==='joker'||b.type==='time'||b.type==='gem')?b.val:Math.round(b.val*100);return t('col_bonus_'+b.type,{V:v});}
 function rarColor(r){return RARITY[r].c;}
 function renderBook(){
   const p=loadProfile();const coll=p.collection||{};const deck=p.deck||[];
