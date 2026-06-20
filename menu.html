@@ -42,7 +42,6 @@ body{padding-bottom:80px;}
     <div class="qc"><div class="qv" id="qxp" style="color:var(--pu)">0</div><div class="ql" id="qxpl"></div></div>
     <div class="qc"><div class="qv" id="qco" style="color:var(--go)">0</div><div class="ql" id="qcol"></div></div>
     <div class="qc"><div class="qv" id="qgm" style="color:var(--pu)">0</div><div class="ql" id="qgml"></div></div>
-    <div class="qc"><div class="qv" id="qst" style="color:var(--fl)">0</div><div class="ql" id="qstl"></div></div>
     <div class="qc"><div class="qv" id="qpf" style="color:var(--c)">0</div><div class="ql" id="qpfl"></div></div>
   </div>
   <div class="sec" style="margin-top:20px">
@@ -85,12 +84,10 @@ window.addEventListener('load',()=>{
   document.getElementById('qxp').textContent=p.xp;
   document.getElementById('qco').textContent=p.coins||0;
   document.getElementById('qgm').textContent=p.gems||0;
-  document.getElementById('qst').textContent=p.bestStreak||0;
   document.getElementById('qpf').textContent=p.perfectGames||0;
   document.getElementById('qxpl').textContent=t('menu_xp');
   document.getElementById('qcol').textContent=t('menu_coins');
   document.getElementById('qgml').textContent=t('cur_gems');
-  document.getElementById('qstl').textContent=t('menu_streak');
   document.getElementById('qpfl').textContent=t('menu_perfect');
   document.getElementById('dlbl').textContent=t('menu_daily_lbl');
   const dn=Math.floor(Date.now()/86400000)%999+1;
