@@ -21,13 +21,17 @@ const AV_SKINS=[
   {id:'sk16',c:'#7CFCD0',cost:14,cur:'gem'},{id:'sk17',c:'#ff7b7b',cost:14,cur:'gem'},
   {id:'sk18',c:'#c0c0ff',cost:20,cur:'gem',req:'champion'},{id:'sk19',c:'#ffe08a',cost:30,cur:'gem',req:'legende'},
 ];
-const AV_FACES=[{id:'fa1',cost:0},{id:'fa2',cost:0},{id:'fa3',cost:0},{id:'fa4',cost:30,cur:'coin'}]; // round / square / oval / diamant
+const AV_FACES=[{id:'fa1',cost:0},{id:'fa2',cost:0},{id:'fa3',cost:0},{id:'fa4',cost:30,cur:'coin'},
+  {id:'fa5',cost:40,cur:'coin'}/*arrondi long*/,{id:'fa6',cost:60,cur:'coin'}/*felin*/,{id:'fa7',cost:80,cur:'coin'}/*robot*/,
+  {id:'fa8',cost:10,cur:'gem'}/*blob*/,{id:'fa9',cost:12,cur:'gem'}/*coeur*/,{id:'fa10',cost:18,cur:'gem',req:'elite'}/*hexagone*/]; // round / square / oval / diamant
 const AV_EYES=[
   {id:'ey1',cost:0},{id:'ey2',cost:0},{id:'ey3',cost:30,cur:'coin'}/*shades*/,
   {id:'ey4',cost:50,cur:'coin'}/*star*/,{id:'ey5',cost:30,cur:'coin'}/*wink*/,
   {id:'ey8',cost:40,cur:'coin'}/*angry*/,{id:'ey9',cost:40,cur:'coin'}/*sleepy*/,
   {id:'ey6',cost:10,cur:'gem'}/*glow*/,{id:'ey7',cost:18,cur:'gem',req:'champion'}/*laser*/,
   {id:'ey10',cost:12,cur:'gem'}/*heart*/,{id:'ey11',cost:22,cur:'gem',req:'mythe'}/*rainbow*/,
+  {id:'ey12',cost:40,cur:'coin'},{id:'ey13',cost:50,cur:'coin'},{id:'ey15',cost:50,cur:'coin'},{id:'ey16',cost:60,cur:'coin'},{id:'ey18',cost:40,cur:'coin'},{id:'ey20',cost:30,cur:'coin'},
+  {id:'ey14',cost:10,cur:'gem'},{id:'ey17',cost:12,cur:'gem'},{id:'ey19',cost:10,cur:'gem'},{id:'ey21',cost:20,cur:'gem',req:'champion'},
 ];
 const AV_HAIR=[
   {id:'ha0',cost:0},{id:'ha1',cost:0},{id:'ha2',cost:0},{id:'ha3',cost:40,cur:'coin'},
@@ -35,6 +39,8 @@ const AV_HAIR=[
   {id:'ha8',cost:70,cur:'coin'}/*mohawk*/,{id:'ha9',cost:70,cur:'coin'}/*long*/,
   {id:'ha7',cost:14,cur:'gem'}/*flame*/,{id:'ha10',cost:18,cur:'gem'}/*ice*/,
   {id:'ha11',cost:26,cur:'gem',req:'legende'}/*galaxy*/,
+  {id:'ha12',cost:70,cur:'coin'}/*afro*/,{id:'ha13',cost:60,cur:'coin'}/*couettes*/,{id:'ha14',cost:70,cur:'coin'}/*undercut*/,{id:'ha15',cost:80,cur:'coin'}/*banane*/,{id:'ha18',cost:60,cur:'coin'}/*chignon*/,{id:'ha19',cost:80,cur:'coin'}/*cornrows*/,
+  {id:'ha16',cost:12,cur:'gem'}/*longs meches*/,{id:'ha17',cost:14,cur:'gem'}/*piquants*/,{id:'ha20',cost:14,cur:'gem'}/*rouge*/,{id:'ha21',cost:20,cur:'gem',req:'champion'}/*neon*/,{id:'ha22',cost:24,cur:'gem',req:'legende'}/*tres longs*/,
 ];
 const AV_HAIRCOLORS=['#3a2a20','#0d0d0d','#a8631f','#e0c068','#ff4b00','#00e5ff','#a855f7','#ff5fa2','#06d6a0','#ffffff','#3b82f6','#ef476f','#7CFC9B','#ffd166'];
 const AV_HATS=[
@@ -44,6 +50,8 @@ const AV_HATS=[
   {id:'h2',cost:25,cur:'gem',req:'legende'}/*crown*/,{id:'h4',cost:16,cur:'gem'}/*halo*/,
   {id:'h5',cost:16,cur:'gem'}/*horns*/,{id:'h7',cost:20,cur:'gem',req:'maitre'}/*wizard*/,
   {id:'h11',cost:22,cur:'gem'}/*cyber visor*/,{id:'h12',cost:40,cur:'gem',req:'mythe'}/*couronne royale*/,
+  {id:'h13',cost:60,cur:'coin'}/*snapback*/,{id:'h14',cost:60,cur:'coin'}/*paille*/,{id:'h22',cost:70,cur:'coin'}/*haut-de-forme*/,{id:'h23',cost:50,cur:'coin'}/*casquette verte*/,{id:'h16',cost:80,cur:'coin'}/*oreilles chat*/,{id:'h18',cost:70,cur:'coin'}/*bandeau ninja*/,
+  {id:'h15',cost:14,cur:'gem'}/*viking*/,{id:'h17',cost:14,cur:'gem'}/*halo neon*/,{id:'h19',cost:20,cur:'gem'}/*casque RGB*/,{id:'h20',cost:18,cur:'gem'}/*mage*/,{id:'h24',cost:16,cur:'gem'}/*antenne*/,{id:'h21',cost:24,cur:'gem',req:'legende'}/*glace*/,{id:'h25',cost:30,cur:'gem',req:'champion'}/*couronne argent*/,
 ];
 const AV_AURAS=[
   {id:'au0',cost:0},{id:'au1',c:'#00e5ff',cost:0},{id:'au2',c:'#a855f7',cost:60,cur:'coin'},
@@ -51,10 +59,26 @@ const AV_AURAS=[
   {id:'au5',c:'rainbow',cost:30,cur:'gem',req:'champion'},{id:'au6',c:'#06d6a0',cost:12,cur:'gem'},
   {id:'au7',c:'#ff5fa2',cost:14,cur:'gem'},{id:'au8',c:'#3b82f6',cost:14,cur:'gem'},
   {id:'au9',c:'gold',cost:45,cur:'gem',req:'legende'}/*aura doree pulsee*/,
+  {id:'au_s1',c:'#ffd166',fx:'stars',cost:90,cur:'coin'},
+  {id:'au_s2',c:'#00e5ff',fx:'sparks',cost:90,cur:'coin'},
+  {id:'au_s3',c:'#a855f7',fx:'rings',cost:80,cur:'coin'},
+  {id:'au_s4',c:'#ff4b00',fx:'flame',cost:16,cur:'gem'},
+  {id:'au_s5',c:'#7dd3fc',fx:'electric',cost:16,cur:'gem'},
+  {id:'au_s6',c:'#bfeaff',fx:'ice',cost:14,cur:'gem'},
+  {id:'au_s7',c:'#06d6a0',fx:'orbit',cost:18,cur:'gem',req:'elite'},
+  {id:'au_s8',c:'#ff5fa2',fx:'stars',cost:22,cur:'gem',req:'champion'},
+];
+/* styles de TENUE (forme/motif, en plus de la couleur) */
+const AV_OUTFIT_STYLES=[
+  {id:'os0',cost:0},{id:'os1',cost:40,cur:'coin'}/*col V*/,{id:'os8',cost:40,cur:'coin'}/*col roule*/,
+  {id:'os12',cost:50,cur:'coin'}/*raye*/,{id:'os6',cost:50,cur:'coin'}/*echarpe*/,{id:'os2',cost:70,cur:'coin'}/*hoodie*/,
+  {id:'os3',cost:80,cur:'coin'}/*costume*/,{id:'os7',cost:80,cur:'coin'}/*veste*/,
+  {id:'os4',cost:14,cur:'gem'}/*armure*/,{id:'os5',cost:14,cur:'gem'}/*cyber*/,{id:'os11',cost:16,cur:'gem'}/*kimono*/,
+  {id:'os10',cost:20,cur:'gem',req:'elite'}/*spatial*/,{id:'os9',cost:30,cur:'gem',req:'legende'}/*cape heros*/,
 ];
 const AV_OUTFITS=['#00e5ff','#a855f7','#ff4b00','#06d6a0','#ffd166','#ef476f','#3b82f6','#94a3b8','#0d0d0d','#ffffff','#7CFC9B','#ff5fa2','#f59e0b','#8b5cf6','#10b981','#e11d48'];
 
-const AVATAR_CATS={skin:AV_SKINS,face:AV_FACES,eyes:AV_EYES,hair:AV_HAIR,hat:AV_HATS,aura:AV_AURAS};
+const AVATAR_CATS={skin:AV_SKINS,face:AV_FACES,eyes:AV_EYES,hair:AV_HAIR,hat:AV_HATS,aura:AV_AURAS,outfitStyle:AV_OUTFIT_STYLES};
 
 /* ---- generation procedurale d'accessoires (teintes) pour atteindre 500+ ----
    On AJOUTE seulement (on ne renomme/supprime jamais d'id existant), donc les
@@ -121,21 +145,74 @@ function renderAvatar(av,size){
   let bg='';
   const auraDef=AV_AURAS.find(a=>a.id===av.aura);
   if(auraDef&&auraDef.id!=='au0'){
+    const ac=auraDef.c||'#00e5ff';
     if(auraDef.c==='rainbow'){
       bg='<defs><radialGradient id="rb"><stop offset="55%" stop-color="transparent"/><stop offset="75%" stop-color="#ff4b00" stop-opacity=".5"/><stop offset="85%" stop-color="#ffd166" stop-opacity=".5"/><stop offset="92%" stop-color="#06d6a0" stop-opacity=".5"/><stop offset="100%" stop-color="#a855f7" stop-opacity=".5"/></radialGradient></defs><circle cx="50" cy="50" r="49" fill="url(#rb)"/>';
-    } else if(auraDef.id==='au4'){
-      bg='<circle cx="50" cy="50" r="47" fill="none" stroke="#ff4b00" stroke-width="3" opacity=".5"/><circle cx="50" cy="50" r="43" fill="none" stroke="#ffd166" stroke-width="2" opacity=".4"/>';
     } else if(auraDef.c==='gold'){
       bg='<defs><radialGradient id="gd"><stop offset="60%" stop-color="transparent"/><stop offset="100%" stop-color="#ffd166" stop-opacity=".55"/></radialGradient></defs><circle cx="50" cy="50" r="49" fill="url(#gd)"/><circle cx="50" cy="50" r="47" fill="none" stroke="#ffd166" stroke-width="2.5" opacity=".7"/>';
-    } else { bg='<circle cx="50" cy="50" r="48" fill="'+auraDef.c+'" opacity=".18"/><circle cx="50" cy="50" r="48" fill="none" stroke="'+auraDef.c+'" stroke-width="2" opacity=".5"/>'; }
+    } else if(auraDef.fx==='stars'){
+      bg='<circle cx="50" cy="50" r="48" fill="'+ac+'" opacity=".12"/>'+[ [50,6],[82,24],[90,58],[70,88],[30,90],[10,60],[14,26],[40,4] ].map((p,i)=>'<text x="'+(p[0]-3)+'" y="'+(p[1]+3)+'" font-size="'+(6+(i%3))+'" fill="'+ac+'">✦</text>').join('');
+    } else if(auraDef.fx==='sparks'){
+      bg='<circle cx="50" cy="50" r="48" fill="'+ac+'" opacity=".1"/>'+[ [50,5,2.2],[86,30,1.6],[88,62,2],[64,90,1.4],[30,92,2],[10,55,1.6],[12,28,2.2],[44,3,1.4],[74,12,1.6] ].map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+p[2]+'" fill="'+ac+'"/>').join('');
+    } else if(auraDef.fx==='rings'){
+      bg='<circle cx="50" cy="50" r="49" fill="none" stroke="'+ac+'" stroke-width="2" opacity=".7"/><circle cx="50" cy="50" r="45" fill="none" stroke="'+ac+'" stroke-width="1.4" opacity=".45"/><circle cx="50" cy="50" r="41" fill="none" stroke="'+ac+'" stroke-width="1" opacity=".3"/>';
+    } else if(auraDef.fx==='flame'){
+      bg='<defs><radialGradient id="fl" cx="50%" cy="80%"><stop offset="40%" stop-color="transparent"/><stop offset="100%" stop-color="'+ac+'" stop-opacity=".5"/></radialGradient></defs><circle cx="50" cy="50" r="49" fill="url(#fl)"/>'+[ [22,96],[34,99],[50,100],[66,99],[78,96] ].map((p,i)=>'<path d="M'+p[0]+' '+p[1]+' q-3 -'+(8+i%3*3)+' 0 -'+(14+i%3*4)+' q3 6 0 '+(14+i%3*4)+' Z" fill="'+ac+'" opacity=".55"/>').join('');
+    } else if(auraDef.fx==='electric'){
+      bg='<circle cx="50" cy="50" r="48" fill="'+ac+'" opacity=".1"/>'+[ '8 40 16 48 10 52 18 60','92 40 84 48 90 52 82 60','50 4 46 12 54 14 48 22' ].map(pts=>'<polyline points="'+pts+'" fill="none" stroke="'+ac+'" stroke-width="1.6" opacity=".8"/>').join('');
+    } else if(auraDef.fx==='ice'){
+      bg='<circle cx="50" cy="50" r="48" fill="#bfeaff" opacity=".12"/>'+[ [50,6],[88,40],[78,84],[22,84],[12,40] ].map(p=>'<g transform="translate('+p[0]+','+p[1]+')"><path d="M0 -5 V5 M-4 -3 L4 3 M4 -3 L-4 3" stroke="'+ac+'" stroke-width="1.4"/></g>').join('');
+    } else if(auraDef.fx==='orbit'){
+      bg='<circle cx="50" cy="50" r="47" fill="none" stroke="'+ac+'" stroke-width="1" opacity=".4"/><circle cx="50" cy="3" r="3" fill="'+ac+'"/><circle cx="97" cy="50" r="2.4" fill="'+ac+'" opacity=".8"/><circle cx="50" cy="97" r="2" fill="'+ac+'" opacity=".6"/>';
+    } else if(auraDef.id==='au4'){
+      bg='<circle cx="50" cy="50" r="47" fill="none" stroke="#ff4b00" stroke-width="3" opacity=".5"/><circle cx="50" cy="50" r="43" fill="none" stroke="#ffd166" stroke-width="2" opacity=".4"/>';
+    } else { bg='<circle cx="50" cy="50" r="48" fill="'+ac+'" opacity=".18"/><circle cx="50" cy="50" r="48" fill="none" stroke="'+ac+'" stroke-width="2" opacity=".5"/>'; }
   }
-  // buste / tenue
-  let body='<path d="M22 100 Q22 74 50 74 Q78 74 78 100 Z" fill="'+out+'"/><path d="M40 76 h20 v8 a10 10 0 0 1 -20 0 Z" fill="'+sk+'"/>';
+  // buste / tenue (style + couleur)
+  function _shade(hex,f){try{let h=hex.replace('#','');if(h.length===3)h=h.split('').map(x=>x+x).join('');let r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);r=Math.max(0,Math.min(255,Math.round(r*f)));g=Math.max(0,Math.min(255,Math.round(g*f)));b=Math.max(0,Math.min(255,Math.round(b*f)));return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){return hex;}}
+  const od=_shade(out,.7), ol=_shade(out,1.25);
+  const torso='<path d="M22 100 Q22 74 50 74 Q78 74 78 100 Z" fill="'+out+'"/>';
+  const neck='<path d="M40 76 h20 v8 a10 10 0 0 1 -20 0 Z" fill="'+sk+'"/>';
+  let body;
+  switch(av.outfitStyle){
+    case 'os1': // col en V
+      body=torso+'<path d="M40 76 L50 90 L60 76 Z" fill="'+od+'"/>'+neck;break;
+    case 'os2': // hoodie a capuche
+      body=torso+'<path d="M30 78 Q50 70 70 78 L70 86 Q50 80 30 86 Z" fill="'+od+'"/><path d="M34 100 Q34 84 50 82 Q66 84 66 100" fill="none" stroke="'+ol+'" stroke-width="2" opacity=".6"/>'+neck+'<path d="M44 84 v10 M56 84 v10" stroke="'+od+'" stroke-width="1.5" opacity=".7"/>';break;
+    case 'os3': // costume + cravate
+      body=torso+'<path d="M40 76 L50 86 L60 76 L60 100 L40 100 Z" fill="#ffffff" opacity=".95"/><path d="M48 80 L52 80 L54 96 L50 100 L46 96 Z" fill="#1f2937"/><path d="M40 76 L50 86 L44 90 Z" fill="'+od+'"/><path d="M60 76 L50 86 L56 90 Z" fill="'+od+'"/>'+neck;break;
+    case 'os4': // armure
+      body=torso+'<path d="M28 80 Q50 74 72 80 L72 88 Q50 82 28 88 Z" fill="'+ol+'"/><circle cx="50" cy="92" r="5" fill="'+ol+'" stroke="'+od+'" stroke-width="1"/><path d="M34 86 v12 M66 86 v12" stroke="'+od+'" stroke-width="2"/>'+neck;break;
+    case 'os5': // cyber / neon
+      body=torso+'<path d="M30 84 H70 M34 92 H66 M40 98 H60" stroke="#00e5ff" stroke-width="1.6" opacity=".85"/><circle cx="50" cy="84" r="2.4" fill="#00e5ff"/>'+neck;break;
+    case 'os6': // echarpe
+      body=torso+'<path d="M34 78 Q50 86 66 78 L66 84 Q50 92 34 84 Z" fill="'+ol+'"/><path d="M60 82 l6 14 l-5 1 Z" fill="'+ol+'"/>'+neck;break;
+    case 'os7': // veste ouverte
+      body=torso+'<path d="M44 76 L40 100 H30 Q30 80 40 76 Z" fill="'+od+'"/><path d="M56 76 L60 100 H70 Q70 80 60 76 Z" fill="'+od+'"/><path d="M46 78 L50 100 L54 78 Z" fill="'+ol+'" opacity=".5"/>'+neck;break;
+    case 'os8': // col roule
+      body=torso+'<path d="M40 74 h20 v6 a10 6 0 0 1 -20 0 Z" fill="'+ol+'"/>'+neck;break;
+    case 'os9': // cape de heros
+      body='<path d="M24 100 Q20 78 40 76 L40 100 Z" fill="'+od+'"/><path d="M76 100 Q80 78 60 76 L60 100 Z" fill="'+od+'"/>'+torso+'<circle cx="50" cy="84" r="4" fill="#ffd166" stroke="'+ol+'" stroke-width="1"/>'+neck;break;
+    case 'os10': // combinaison spatiale
+      body=torso+'<circle cx="50" cy="88" r="9" fill="#0b1220" stroke="#9fd0ff" stroke-width="1.6"/><circle cx="50" cy="88" r="9" fill="none" stroke="#00e5ff" stroke-width="1" opacity=".5"/><path d="M30 82 H70" stroke="#9fd0ff" stroke-width="1.4" opacity=".5"/>'+neck;break;
+    case 'os11': // kimono
+      body=torso+'<path d="M40 76 L50 90 L60 76 Z" fill="#ffffff" opacity=".9"/><path d="M50 90 L50 100" stroke="'+od+'" stroke-width="3"/><path d="M30 90 H70" stroke="'+ol+'" stroke-width="3" opacity=".8"/>'+neck;break;
+    case 'os12': // maillot raye
+      body=torso+'<path d="M26 82 H74 M26 90 H74 M26 98 H74" stroke="'+ol+'" stroke-width="3" opacity=".8"/>'+neck;break;
+    case 'os0': default:
+      body=torso+neck;
+  }
   // tete (face shape)
   let head;
   if(av.face==='fa2') head='<rect x="30" y="26" width="40" height="44" rx="12" fill="'+sk+'"/>';
   else if(av.face==='fa3') head='<ellipse cx="50" cy="48" rx="19" ry="24" fill="'+sk+'"/>';
   else if(av.face==='fa4') head='<path d="M50 24 L70 48 L50 72 L30 48 Z" fill="'+sk+'"/>';
+  else if(av.face==='fa5') head='<path d="M30 40 Q30 24 50 24 Q70 24 70 40 L70 52 Q70 70 50 70 Q30 70 30 52 Z" fill="'+sk+'"/>';/* arrondi long */
+  else if(av.face==='fa6') head='<circle cx="50" cy="46" r="21" fill="'+sk+'"/><path d="M33 32 L40 24 L44 34 Z M67 32 L60 24 L56 34 Z" fill="'+sk+'"/>';/* felin (oreilles pointues) */
+  else if(av.face==='fa7') head='<rect x="31" y="28" width="38" height="40" rx="6" fill="'+sk+'"/><rect x="31" y="30" width="38" height="4" fill="#ffffff" opacity=".15"/>';/* robot */
+  else if(av.face==='fa8') head='<path d="M50 26 C66 26 70 40 68 50 C66 64 58 70 50 70 C42 70 34 64 32 50 C30 40 34 26 50 26 Z" fill="'+sk+'"/>';/* blob doux */
+  else if(av.face==='fa9') head='<path d="M50 70 C30 56 32 30 50 34 C68 30 70 56 50 70 Z" fill="'+sk+'"/>';/* coeur */
+  else if(av.face==='fa10') head='<polygon points="50,24 68,35 68,57 50,68 32,57 32,35" fill="'+sk+'"/>';/* hexagone */
   else head='<circle cx="50" cy="46" r="21" fill="'+sk+'"/>';
   // oreilles
   head+='<circle cx="29" cy="48" r="4" fill="'+sk+'"/><circle cx="71" cy="48" r="4" fill="'+sk+'"/>';
@@ -152,7 +229,16 @@ function renderAvatar(av,size){
     case 'ey9': eyes='<path d="M40 47 q4 3 8 0" stroke="#1a1a2a" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M52 47 q4 3 8 0" stroke="#1a1a2a" stroke-width="2.4" fill="none" stroke-linecap="round"/>';break;
     case 'ey10': eyes='<text x="39.5" y="50" font-size="9">❤️</text><text x="53.5" y="50" font-size="9">❤️</text>';break;
     case 'ey11': eyes='<circle cx="44" cy="46" r="3.4" fill="#a855f7"/><circle cx="56" cy="46" r="3.4" fill="#06d6a0"/><circle cx="44" cy="46" r="6" fill="#ff5fa2" opacity=".25"/><circle cx="56" cy="46" r="6" fill="#ffd166" opacity=".25"/>';break;
-    default: eyes='<circle cx="44" cy="46" r="2.8" fill="#1a1a2a"/><circle cx="56" cy="46" r="2.8" fill="#1a1a2a"/>';
+    case 'ey12': eyes='<circle cx="44" cy="46" r="3.6" fill="#fff"/><circle cx="56" cy="46" r="3.6" fill="#fff"/><circle cx="44.6" cy="46.6" r="1.8" fill="#1a1a2a"/><circle cx="56.6" cy="46.6" r="1.8" fill="#1a1a2a"/>';break;/* grands yeux mignons */
+    case 'ey13': eyes='<ellipse cx="44" cy="46" rx="2" ry="4" fill="#16a34a"/><ellipse cx="56" cy="46" rx="2" ry="4" fill="#16a34a"/>';break;/* yeux de chat */
+    case 'ey14': eyes='<text x="39.5" y="50" font-size="9">💲</text><text x="53.5" y="50" font-size="9">💲</text>';break;/* dollars */
+    case 'ey15': eyes='<circle cx="44" cy="46" r="3" fill="#1a1a2a"/><circle cx="56" cy="46" r="3" fill="#1a1a2a"/><circle cx="45" cy="45" r="1" fill="#fff"/><circle cx="57" cy="45" r="1" fill="#fff"/>';break;/* brillants */
+    case 'ey16': eyes='<rect x="37" y="42" width="11" height="8" rx="2" fill="none" stroke="#0d0d0d" stroke-width="1.6"/><rect x="52" y="42" width="11" height="8" rx="2" fill="none" stroke="#0d0d0d" stroke-width="1.6"/><path d="M48 45 H52" stroke="#0d0d0d" stroke-width="1.6"/><circle cx="42" cy="46" r="1.6" fill="#1a1a2a"/><circle cx="57" cy="46" r="1.6" fill="#1a1a2a"/>';break;/* lunettes rondes */
+    case 'ey17': eyes='<path d="M38 44 h10 v6 l-10 -1 Z" fill="#ff2d55" opacity=".85"/><path d="M52 44 h10 v5 l-10 1 Z" fill="#00e5ff" opacity=".85"/>';break;/* lunettes 3D */
+    case 'ey18': eyes='<rect x="41" y="43" width="6" height="6" fill="#1a1a2a"/><rect x="53" y="43" width="6" height="6" fill="#1a1a2a"/>';break;/* pixel */
+    case 'ey19': eyes='<circle cx="44" cy="46" r="2.8" fill="#1a1a2a"/><circle cx="56" cy="46" r="2.8" fill="#1a1a2a"/><path d="M54 50 q2 4 4 1" stroke="#7dd3fc" stroke-width="2" fill="none" stroke-linecap="round"/>';break;/* larme */
+    case 'ey20': eyes='<path d="M40 46 h8 M52 46 h8" stroke="#1a1a2a" stroke-width="3" stroke-linecap="round"/>';break;/* determine */
+    case 'ey21': eyes='<circle cx="44" cy="46" r="3.4" fill="#ffd166"/><circle cx="56" cy="46" r="3.4" fill="#ffd166"/><circle cx="44" cy="46" r="6.5" fill="#ffd166" opacity=".25"/><circle cx="56" cy="46" r="6.5" fill="#ffd166" opacity=".25"/>';break;/* dores brillants */
   }
   eyes+='<path d="M44 56 q6 5 12 0" stroke="#1a1a2a" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>';
   // cheveux
@@ -169,7 +255,17 @@ function renderAvatar(av,size){
     case 'ha9': hair='<path d="M27 46 Q26 24 50 24 Q74 24 73 46 L73 70 Q70 56 70 44 Q68 32 50 31 Q32 32 30 44 Q30 56 27 70 Z" fill="'+hc+'"/>';break;
     case 'ha10': hair='<path d="M29 44 Q30 22 50 22 Q70 22 71 44 Q66 32 50 31 Q34 32 29 44 Z" fill="#9fe9ff"/><path d="M34 30 l3 -8 l3 8 Z M60 30 l3 -8 l3 8 Z" fill="#e0f7ff"/>';break;
     case 'ha11': hair='<path d="M29 44 Q30 22 50 22 Q70 22 71 44 Q66 32 50 31 Q34 32 29 44 Z" fill="#3b1d6e"/><circle cx="40" cy="32" r="1.4" fill="#fff"/><circle cx="52" cy="28" r="1.6" fill="#ffd166"/><circle cx="60" cy="34" r="1.2" fill="#7CFC9B"/><circle cx="46" cy="36" r="1" fill="#ff5fa2"/>';break;
-    case 'ha0': default: hair='';
+    case 'ha12': hair='<circle cx="50" cy="30" r="22" fill="'+hc+'"/><circle cx="32" cy="36" r="11" fill="'+hc+'"/><circle cx="68" cy="36" r="11" fill="'+hc+'"/>';break;/* afro */
+    case 'ha13': hair='<path d="M29 44 Q30 22 50 22 Q70 22 71 44 Q66 32 50 31 Q34 32 29 44 Z" fill="'+hc+'"/><circle cx="28" cy="50" r="7" fill="'+hc+'"/><circle cx="72" cy="50" r="7" fill="'+hc+'"/>';break;/* couettes */
+    case 'ha14': hair='<path d="M29 46 Q30 22 50 22 Q70 22 71 46 L71 40 Q70 30 50 30 Q30 30 29 40 Z" fill="'+hc+'"/><path d="M40 22 q10 -8 20 0" fill="'+hc+'"/>';break;/* undercut */
+    case 'ha15': hair='<path d="M30 40 Q34 18 50 22 Q70 20 70 40 Q60 30 50 31 Q40 30 30 40 Z" fill="'+hc+'"/><path d="M50 22 q14 -6 16 8 q-8 -6 -16 -2 Z" fill="'+hc+'"/>';break;/* banane/quiff */
+    case 'ha16': hair='<path d="M28 48 Q26 22 50 22 Q74 22 72 48 L72 64 Q68 50 68 44 Q66 32 50 31 Q34 32 32 44 Q32 50 28 64 Z" fill="'+hc+'"/><path d="M30 46 v18 M70 46 v18" stroke="'+_shade(hc,.7)+'" stroke-width="1.5" opacity=".5"/>';break;/* longs avec meches */
+    case 'ha17': hair='<path d="M30 42 L33 22 L38 34 L43 20 L48 34 L52 20 L57 34 L62 21 L67 35 L70 42 Q60 30 50 30 Q40 30 30 42 Z" fill="'+hc+'"/>';break;/* piquants longs */
+    case 'ha18': hair='<path d="M29 44 Q30 22 50 22 Q70 22 71 44 Q66 32 50 31 Q34 32 29 44 Z" fill="'+hc+'"/><path d="M50 22 v-8 q4 0 4 4 q0 4 -4 4 Z" fill="'+hc+'"/><circle cx="50" cy="13" r="2" fill="'+hc+'"/>';break;/* chignon */
+    case 'ha19': hair='<rect x="33" y="22" width="34" height="10" rx="4" fill="'+hc+'"/><path d="M33 30 q17 8 34 0 v-6 h-34 Z" fill="'+hc+'"/><rect x="36" y="22" width="3" height="14" fill="'+hc+'"/><rect x="61" y="22" width="3" height="14" fill="'+hc+'"/>';break;/* cornrows */
+    case 'ha20': hair='<path d="M29 44 Q30 22 50 22 Q70 22 71 44 Q66 32 50 31 Q34 32 29 44 Z" fill="#e63946"/><path d="M34 32 q16 -8 32 0" stroke="#ffb703" stroke-width="2" fill="none" opacity=".7"/>';break;/* rouge meche */
+    case 'ha21': hair='<path d="M30 42 L34 24 L40 36 L46 22 L52 36 L58 23 L64 37 L70 42 Q60 30 50 30 Q40 30 30 42 Z" fill="#00e5ff"/><path d="M30 42 Q50 36 70 42" stroke="#a855f7" stroke-width="2" fill="none"/>';break;/* neon bicolore */
+    case 'ha22': hair='<path d="M27 48 Q26 22 50 22 Q74 22 73 48 L73 72 Q72 80 66 80 L62 72 Q70 58 70 46 Q68 32 50 31 Q32 32 30 46 Q30 58 38 72 L34 80 Q28 80 27 72 Z" fill="'+hc+'"/>';break;/* tres longs */
   }
   // chapeau / accessoire
   let hat='';
@@ -185,7 +281,19 @@ function renderAvatar(av,size){
     case 'h9': hat='<path d="M28 40 Q30 24 50 24 Q70 24 72 40 Z" fill="#10b981"/><path d="M24 40 h12 q2 0 2 4 h-16 Z" fill="#059669"/>';break;
     case 'h10': hat='<path d="M27 44 a23 23 0 0 1 46 0 v4 h-46 Z" fill="#475569"/><rect x="46" y="20" width="8" height="10" rx="2" fill="#94a3b8"/><circle cx="50" cy="18" r="3" fill="#00e5ff"/>';break;
     case 'h11': hat='<rect x="30" y="40" width="40" height="9" rx="4" fill="#0d0d0d"/><rect x="33" y="42" width="34" height="5" rx="2" fill="#00e5ff" opacity=".8"/><rect x="28" y="40" width="6" height="9" rx="2" fill="#1f2937"/><rect x="66" y="40" width="6" height="9" rx="2" fill="#1f2937"/>';break;
-    case 'h12': hat='<path d="M32 28 L38 14 L46 24 L50 12 L54 24 L62 14 L68 28 Z" fill="#ffd166" stroke="#e0a800" stroke-width="1.2"/><rect x="32" y="28" width="36" height="5" rx="2" fill="#e0a800"/><circle cx="50" cy="20" r="2.4" fill="#ef476f"/><circle cx="40" cy="20" r="2" fill="#3b82f6"/><circle cx="60" cy="20" r="2" fill="#06d6a0"/>';break;
+    case 'h13': hat='<path d="M30 38 Q30 22 50 22 Q70 22 70 38 Z" fill="#1f2937"/><rect x="26" y="36" width="48" height="6" rx="3" fill="#111827"/><path d="M50 24 l3 6 h-6 Z" fill="#ffd166"/>';break;/* snapback etoile */
+    case 'h14': hat='<ellipse cx="50" cy="40" rx="26" ry="6" fill="#d9a441"/><path d="M34 40 Q34 22 50 22 Q66 22 66 40 Z" fill="#e8b85a"/><rect x="34" y="34" width="32" height="4" fill="#a9742a"/>';break;/* chapeau de paille */
+    case 'h15': hat='<path d="M30 40 Q30 20 50 20 Q70 20 70 40 Z" fill="#94a3b8"/><path d="M30 34 l-8 -10 l8 4 Z M70 34 l8 -10 l-8 4 Z" fill="#e5e7eb"/><rect x="28" y="38" width="44" height="5" rx="2" fill="#64748b"/>';break;/* casque viking */
+    case 'h16': hat='<path d="M34 34 q-6 -16 4 -16 q4 6 6 14 Z" fill="'+sk+'"/><path d="M66 34 q6 -16 -4 -16 q-4 6 -6 14 Z" fill="'+sk+'"/><path d="M36 30 q-3 -8 2 -9 M64 30 q3 -8 -2 -9" fill="#ff9bb0"/>';break;/* oreilles de chat */
+    case 'h17': hat='<ellipse cx="50" cy="16" rx="15" ry="4" fill="none" stroke="#00e5ff" stroke-width="3"/><ellipse cx="50" cy="16" rx="15" ry="4" fill="none" stroke="#00e5ff" stroke-width="6" opacity=".25"/>';break;/* halo neon */
+    case 'h18': hat='<path d="M30 32 h40 v6 h-40 Z" fill="#0d0d0d"/><path d="M32 38 q18 8 36 0" fill="#0d0d0d"/><circle cx="40" cy="34" r="2" fill="#ff2d55"/><circle cx="60" cy="34" r="2" fill="#ff2d55"/>';break;/* bandeau ninja */
+    case 'h19': hat='<path d="M27 44 a23 23 0 0 1 46 0" fill="none" stroke="#1f2937" stroke-width="5"/><rect x="20" y="40" width="9" height="16" rx="4" fill="#1f2937"/><rect x="71" y="40" width="9" height="16" rx="4" fill="#1f2937"/><rect x="22" y="42" width="5" height="12" rx="2" fill="#ff4b00"/><rect x="73" y="42" width="5" height="12" rx="2" fill="#00e5ff"/>';break;/* casque gamer RGB */
+    case 'h20': hat='<path d="M28 36 Q50 -10 72 36 Z" fill="#1e3a8a"/><path d="M26 36 h48 q2 0 2 4 h-52 Z" fill="#1e40af"/><circle cx="44" cy="20" r="1.6" fill="#ffd166"/><circle cx="54" cy="16" r="2" fill="#fff"/><circle cx="58" cy="26" r="1.4" fill="#7CFC9B"/>';break;/* chapeau de mage etoile */
+    case 'h21': hat='<path d="M34 30 L40 14 L46 26 L50 12 L54 26 L60 14 L66 30 Z" fill="#bfeaff" stroke="#7dd3fc" stroke-width="1.2"/><path d="M40 14 l1 -5 M50 12 l0 -6 M60 14 l-1 -5" stroke="#e0f7ff" stroke-width="1.4"/>';break;/* couronne de glace */
+    case 'h22': hat='<rect x="36" y="20" width="28" height="16" rx="3" fill="#0d0d0d"/><ellipse cx="50" cy="36" rx="22" ry="5" fill="#0d0d0d"/><rect x="36" y="31" width="28" height="3" fill="#ef476f"/>';break;/* haut-de-forme */
+    case 'h23': hat='<path d="M30 38 Q30 22 50 22 Q70 22 70 38 Z" fill="#10b981"/><rect x="26" y="36" width="48" height="6" rx="3" fill="#059669"/>';break;/* casquette verte (devant) */
+    case 'h24': hat='<path d="M32 34 q18 -20 36 0 q-6 -4 -18 -4 q-12 0 -18 4 Z" fill="#7c3aed"/><circle cx="50" cy="14" r="3" fill="#ffd166"/><path d="M50 17 v6" stroke="#ffd166" stroke-width="1.5"/>';break;/* antenne lumineuse */
+    case 'h25': hat='<path d="M34 28 L40 14 L46 24 L50 12 L54 24 L60 14 L66 28 Z" fill="#e5e7eb" stroke="#cbd5e1" stroke-width="1"/><rect x="34" y="28" width="32" height="5" rx="2" fill="#cbd5e1"/><circle cx="50" cy="18" r="2.4" fill="#a855f7"/>';break;/* couronne argent */
   }
   return '<svg viewBox="0 0 100 100" width="'+size+'" height="'+size+'" xmlns="http://www.w3.org/2000/svg">'+bg+body+head+hair+eyes+hat+'</svg>';
 }
