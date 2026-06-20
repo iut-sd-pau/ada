@@ -141,66 +141,69 @@ function itemUnlockedByRank(p,it){if(!it||!it.req)return true;return getRankInde
 /* --- RENDU SVG --- */
 function renderAvatar(av,size){
   av={...DEFAULT_AVATAR,...(av||{})};size=size||96;
+  const uid='av'+Math.floor(Math.random()*1000000).toString(36);
   const sk=skinColor(av.skin), out=av.outfit||'#00e5ff', hc=av.hairColor||'#3a2a20';
   let bg='';
   const auraDef=AV_AURAS.find(a=>a.id===av.aura);
   if(auraDef&&auraDef.id!=='au0'){
     const ac=auraDef.c||'#00e5ff';
+    const glow=(id,col)=>'<defs><radialGradient id="'+id+'"><stop offset="48%" stop-color="transparent"/><stop offset="82%" stop-color="'+col+'" stop-opacity=".45"/><stop offset="100%" stop-color="'+col+'" stop-opacity=".05"/></radialGradient></defs><circle cx="50" cy="50" r="50" fill="url(#'+id+')"><animate attributeName="opacity" values="0.75;1;0.75" dur="2.6s" repeatCount="indefinite"/></circle>';
     if(auraDef.c==='rainbow'){
-      bg='<defs><radialGradient id="rb"><stop offset="55%" stop-color="transparent"/><stop offset="75%" stop-color="#ff4b00" stop-opacity=".5"/><stop offset="85%" stop-color="#ffd166" stop-opacity=".5"/><stop offset="92%" stop-color="#06d6a0" stop-opacity=".5"/><stop offset="100%" stop-color="#a855f7" stop-opacity=".5"/></radialGradient></defs><circle cx="50" cy="50" r="49" fill="url(#rb)"/>';
+      bg='<defs><radialGradient id="'+uid+'rb"><stop offset="50%" stop-color="transparent"/><stop offset="70%" stop-color="#ff4b00" stop-opacity=".55"/><stop offset="82%" stop-color="#ffd166" stop-opacity=".55"/><stop offset="91%" stop-color="#06d6a0" stop-opacity=".55"/><stop offset="100%" stop-color="#a855f7" stop-opacity=".55"/></radialGradient></defs><g><circle cx="50" cy="50" r="50" fill="url(#'+uid+'rb)"/><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="9s" repeatCount="indefinite"/></g>';
     } else if(auraDef.c==='gold'){
-      bg='<defs><radialGradient id="gd"><stop offset="60%" stop-color="transparent"/><stop offset="100%" stop-color="#ffd166" stop-opacity=".55"/></radialGradient></defs><circle cx="50" cy="50" r="49" fill="url(#gd)"/><circle cx="50" cy="50" r="47" fill="none" stroke="#ffd166" stroke-width="2.5" opacity=".7"/>';
+      bg=glow(uid+'g','#ffd166')+'<circle cx="50" cy="50" r="48" fill="none" stroke="#ffe08a" stroke-width="2.5" opacity=".8"/>'+[ [50,4],[84,28],[88,66],[58,92],[18,86],[8,46],[20,16] ].map((p,i)=>'<text x="'+(p[0]-3)+'" y="'+(p[1]+3)+'" font-size="'+(6+i%3)+'" fill="#fff3b0">✦<animate attributeName="opacity" values="0.3;1;0.3" dur="'+(1.6+i*0.2)+'s" repeatCount="indefinite"/></text>').join('');
     } else if(auraDef.fx==='stars'){
-      bg='<circle cx="50" cy="50" r="48" fill="'+ac+'" opacity=".12"/>'+[ [50,6],[82,24],[90,58],[70,88],[30,90],[10,60],[14,26],[40,4] ].map((p,i)=>'<text x="'+(p[0]-3)+'" y="'+(p[1]+3)+'" font-size="'+(6+(i%3))+'" fill="'+ac+'">✦</text>').join('');
+      bg=glow(uid+'s',ac)+[ [50,5],[82,24],[90,58],[70,88],[30,90],[10,60],[14,26],[40,4],[62,14] ].map((p,i)=>'<text x="'+(p[0]-3)+'" y="'+(p[1]+3)+'" font-size="'+(6+i%3)+'" fill="'+ac+'">✦<animate attributeName="opacity" values="0.25;1;0.25" dur="'+(1.5+i*0.25)+'s" repeatCount="indefinite"/></text>').join('');
     } else if(auraDef.fx==='sparks'){
-      bg='<circle cx="50" cy="50" r="48" fill="'+ac+'" opacity=".1"/>'+[ [50,5,2.2],[86,30,1.6],[88,62,2],[64,90,1.4],[30,92,2],[10,55,1.6],[12,28,2.2],[44,3,1.4],[74,12,1.6] ].map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+p[2]+'" fill="'+ac+'"/>').join('');
+      bg=glow(uid+'sp',ac)+[ [50,5,2.6],[86,30,1.8],[88,62,2.2],[64,90,1.6],[30,92,2.2],[10,55,1.8],[12,28,2.4],[44,3,1.6],[74,12,1.8],[26,72,2] ].map((p,i)=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+p[2]+'" fill="'+ac+'"><animate attributeName="r" values="'+p[2]+';'+(p[2]+1.4)+';'+p[2]+'" dur="'+(1.4+i*0.2)+'s" repeatCount="indefinite"/></circle>').join('');
     } else if(auraDef.fx==='rings'){
-      bg='<circle cx="50" cy="50" r="49" fill="none" stroke="'+ac+'" stroke-width="2" opacity=".7"/><circle cx="50" cy="50" r="45" fill="none" stroke="'+ac+'" stroke-width="1.4" opacity=".45"/><circle cx="50" cy="50" r="41" fill="none" stroke="'+ac+'" stroke-width="1" opacity=".3"/>';
+      bg='<circle cx="50" cy="50" r="49" fill="none" stroke="'+ac+'" stroke-width="2.4" opacity=".8"><animate attributeName="r" values="44;49;44" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.3;0.8;0.3" dur="3s" repeatCount="indefinite"/></circle><circle cx="50" cy="50" r="45" fill="none" stroke="'+ac+'" stroke-width="1.6" opacity=".5"/><circle cx="50" cy="50" r="41" fill="none" stroke="'+ac+'" stroke-width="1" opacity=".3"/>';
     } else if(auraDef.fx==='flame'){
-      bg='<defs><radialGradient id="fl" cx="50%" cy="80%"><stop offset="40%" stop-color="transparent"/><stop offset="100%" stop-color="'+ac+'" stop-opacity=".5"/></radialGradient></defs><circle cx="50" cy="50" r="49" fill="url(#fl)"/>'+[ [22,96],[34,99],[50,100],[66,99],[78,96] ].map((p,i)=>'<path d="M'+p[0]+' '+p[1]+' q-3 -'+(8+i%3*3)+' 0 -'+(14+i%3*4)+' q3 6 0 '+(14+i%3*4)+' Z" fill="'+ac+'" opacity=".55"/>').join('');
+      bg='<defs><radialGradient id="'+uid+'fl" cx="50%" cy="82%"><stop offset="35%" stop-color="transparent"/><stop offset="100%" stop-color="'+ac+'" stop-opacity=".55"/></radialGradient></defs><circle cx="50" cy="50" r="50" fill="url(#'+uid+'fl)"/>'+[ [20,98,9],[34,100,13],[50,101,16],[66,100,13],[80,98,9] ].map((p,i)=>'<path d="M'+p[0]+' '+p[1]+' q-3 -'+p[2]+' 0 -'+(p[2]+5)+' q3 6 0 '+(p[2]+5)+' Z" fill="'+(i%2?'#ffd166':ac)+'" opacity=".7"><animate attributeName="opacity" values="0.4;0.85;0.4" dur="'+(0.7+i*0.15)+'s" repeatCount="indefinite"/></path>').join('');
     } else if(auraDef.fx==='electric'){
-      bg='<circle cx="50" cy="50" r="48" fill="'+ac+'" opacity=".1"/>'+[ '8 40 16 48 10 52 18 60','92 40 84 48 90 52 82 60','50 4 46 12 54 14 48 22' ].map(pts=>'<polyline points="'+pts+'" fill="none" stroke="'+ac+'" stroke-width="1.6" opacity=".8"/>').join('');
+      bg=glow(uid+'el',ac)+[ '6 38 16 48 9 53 19 62','94 38 84 48 91 53 81 62','50 2 45 11 55 13 49 22' ].map((pts,i)=>'<polyline points="'+pts+'" fill="none" stroke="'+ac+'" stroke-width="1.8" opacity=".9"><animate attributeName="opacity" values="0.2;1;0.2" dur="'+(0.5+i*0.2)+'s" repeatCount="indefinite"/></polyline>').join('');
     } else if(auraDef.fx==='ice'){
-      bg='<circle cx="50" cy="50" r="48" fill="#bfeaff" opacity=".12"/>'+[ [50,6],[88,40],[78,84],[22,84],[12,40] ].map(p=>'<g transform="translate('+p[0]+','+p[1]+')"><path d="M0 -5 V5 M-4 -3 L4 3 M4 -3 L-4 3" stroke="'+ac+'" stroke-width="1.4"/></g>').join('');
+      bg='<circle cx="50" cy="50" r="50" fill="#bfeaff" opacity=".14"/><circle cx="50" cy="50" r="48" fill="none" stroke="#bfeaff" stroke-width="1.5" opacity=".6"/>'+[ [50,5],[88,38],[80,86],[20,86],[12,38] ].map((p,i)=>'<g transform="translate('+p[0]+','+p[1]+')"><path d="M0 -6 V6 M-5 -3 L5 3 M5 -3 L-5 3" stroke="'+ac+'" stroke-width="1.6"/><animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="'+(8+i)+'s" repeatCount="indefinite" additive="sum"/></g>').join('');
     } else if(auraDef.fx==='orbit'){
-      bg='<circle cx="50" cy="50" r="47" fill="none" stroke="'+ac+'" stroke-width="1" opacity=".4"/><circle cx="50" cy="3" r="3" fill="'+ac+'"/><circle cx="97" cy="50" r="2.4" fill="'+ac+'" opacity=".8"/><circle cx="50" cy="97" r="2" fill="'+ac+'" opacity=".6"/>';
+      bg='<circle cx="50" cy="50" r="47" fill="none" stroke="'+ac+'" stroke-width="1" opacity=".4"/><g><circle cx="50" cy="2" r="3.4" fill="'+ac+'"/><circle cx="97" cy="50" r="2.6" fill="'+ac+'" opacity=".8"/><circle cx="50" cy="98" r="2.2" fill="'+ac+'" opacity=".6"/><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="6s" repeatCount="indefinite"/></g>';
     } else if(auraDef.id==='au4'){
-      bg='<circle cx="50" cy="50" r="47" fill="none" stroke="#ff4b00" stroke-width="3" opacity=".5"/><circle cx="50" cy="50" r="43" fill="none" stroke="#ffd166" stroke-width="2" opacity=".4"/>';
-    } else { bg='<circle cx="50" cy="50" r="48" fill="'+ac+'" opacity=".18"/><circle cx="50" cy="50" r="48" fill="none" stroke="'+ac+'" stroke-width="2" opacity=".5"/>'; }
+      bg=glow(uid+'a4','#ff4b00')+'<circle cx="50" cy="50" r="47" fill="none" stroke="#ff4b00" stroke-width="3" opacity=".55"/><circle cx="50" cy="50" r="43" fill="none" stroke="#ffd166" stroke-width="2" opacity=".45"/>';
+    } else { bg=glow(uid+'h',ac)+'<circle cx="50" cy="50" r="48" fill="none" stroke="'+ac+'" stroke-width="2" opacity=".6"/>'; }
   }
   // buste / tenue (style + couleur)
   function _shade(hex,f){try{let h=hex.replace('#','');if(h.length===3)h=h.split('').map(x=>x+x).join('');let r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);r=Math.max(0,Math.min(255,Math.round(r*f)));g=Math.max(0,Math.min(255,Math.round(g*f)));b=Math.max(0,Math.min(255,Math.round(b*f)));return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){return hex;}}
-  const od=_shade(out,.7), ol=_shade(out,1.25);
-  const torso='<path d="M22 100 Q22 74 50 74 Q78 74 78 100 Z" fill="'+out+'"/>';
+  const od=_shade(out,.62), ol=_shade(out,1.3), om=_shade(out,.85);
+  const ograd='<defs><linearGradient id="'+uid+'o" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+ol+'"/><stop offset="1" stop-color="'+od+'"/></linearGradient></defs>';
+  const torso=ograd+'<path d="M22 100 Q22 74 50 74 Q78 74 78 100 Z" fill="url(#'+uid+'o)"/>';
   const neck='<path d="M40 76 h20 v8 a10 10 0 0 1 -20 0 Z" fill="'+sk+'"/>';
   let body;
   switch(av.outfitStyle){
-    case 'os1': // col en V
-      body=torso+'<path d="M40 76 L50 90 L60 76 Z" fill="'+od+'"/>'+neck;break;
-    case 'os2': // hoodie a capuche
-      body=torso+'<path d="M30 78 Q50 70 70 78 L70 86 Q50 80 30 86 Z" fill="'+od+'"/><path d="M34 100 Q34 84 50 82 Q66 84 66 100" fill="none" stroke="'+ol+'" stroke-width="2" opacity=".6"/>'+neck+'<path d="M44 84 v10 M56 84 v10" stroke="'+od+'" stroke-width="1.5" opacity=".7"/>';break;
-    case 'os3': // costume + cravate
-      body=torso+'<path d="M40 76 L50 86 L60 76 L60 100 L40 100 Z" fill="#ffffff" opacity=".95"/><path d="M48 80 L52 80 L54 96 L50 100 L46 96 Z" fill="#1f2937"/><path d="M40 76 L50 86 L44 90 Z" fill="'+od+'"/><path d="M60 76 L50 86 L56 90 Z" fill="'+od+'"/>'+neck;break;
-    case 'os4': // armure
-      body=torso+'<path d="M28 80 Q50 74 72 80 L72 88 Q50 82 28 88 Z" fill="'+ol+'"/><circle cx="50" cy="92" r="5" fill="'+ol+'" stroke="'+od+'" stroke-width="1"/><path d="M34 86 v12 M66 86 v12" stroke="'+od+'" stroke-width="2"/>'+neck;break;
-    case 'os5': // cyber / neon
-      body=torso+'<path d="M30 84 H70 M34 92 H66 M40 98 H60" stroke="#00e5ff" stroke-width="1.6" opacity=".85"/><circle cx="50" cy="84" r="2.4" fill="#00e5ff"/>'+neck;break;
-    case 'os6': // echarpe
-      body=torso+'<path d="M34 78 Q50 86 66 78 L66 84 Q50 92 34 84 Z" fill="'+ol+'"/><path d="M60 82 l6 14 l-5 1 Z" fill="'+ol+'"/>'+neck;break;
-    case 'os7': // veste ouverte
-      body=torso+'<path d="M44 76 L40 100 H30 Q30 80 40 76 Z" fill="'+od+'"/><path d="M56 76 L60 100 H70 Q70 80 60 76 Z" fill="'+od+'"/><path d="M46 78 L50 100 L54 78 Z" fill="'+ol+'" opacity=".5"/>'+neck;break;
+    case 'os1': // col en V + bordure
+      body=torso+'<path d="M40 75 L50 91 L60 75 Z" fill="'+od+'"/><path d="M40 75 L50 91 L60 75" fill="none" stroke="'+ol+'" stroke-width="1.4"/>'+neck;break;
+    case 'os2': // hoodie : capuche, cordons, poche
+      body=torso+'<path d="M30 77 Q50 69 70 77 L70 87 Q50 80 30 87 Z" fill="'+om+'"/><path d="M44 83 v11 M56 83 v11" stroke="#fff" stroke-width="1.6" opacity=".85" stroke-linecap="round"/><circle cx="44" cy="95" r="1.6" fill="#fff" opacity=".85"/><circle cx="56" cy="95" r="1.6" fill="#fff" opacity=".85"/><path d="M40 96 q10 8 20 0" fill="none" stroke="'+od+'" stroke-width="2"/>'+neck;break;
+    case 'os3': // costume + chemise + cravate
+      body=torso+'<path d="M40 76 L50 86 L60 76 L62 100 L38 100 Z" fill="#f4f6fb"/><path d="M48 80 L52 80 L54 97 L50 100 L46 97 Z" fill="'+_shade(out,.5)+'"/><path d="M40 76 L50 86 L43 92 Z" fill="'+od+'"/><path d="M60 76 L50 86 L57 92 Z" fill="'+od+'"/><circle cx="50" cy="93" r="1" fill="#cbd5e1"/>'+neck;break;
+    case 'os4': // armure : plastron, rivets, epaulettes
+      body=torso+'<path d="M30 80 Q50 73 70 80 L70 90 Q50 83 30 90 Z" fill="'+ol+'"/><ellipse cx="28" cy="82" rx="7" ry="5" fill="'+ol+'"/><ellipse cx="72" cy="82" rx="7" ry="5" fill="'+ol+'"/><circle cx="50" cy="93" r="5" fill="'+om+'" stroke="'+_shade(out,.5)+'" stroke-width="1"/><circle cx="36" cy="86" r="1.4" fill="#fff" opacity=".7"/><circle cx="64" cy="86" r="1.4" fill="#fff" opacity=".7"/>'+neck;break;
+    case 'os5': // cyber : circuits lumineux + coeur
+      body=torso+'<path d="M30 84 H70 M34 92 H66 M40 98 H60" stroke="#00e5ff" stroke-width="1.6" opacity=".9"/><circle cx="50" cy="84" r="3" fill="#00e5ff"><animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" repeatCount="indefinite"/></circle><circle cx="34" cy="92" r="1.4" fill="#7CFC9B"/><circle cx="66" cy="92" r="1.4" fill="#ff5fa2"/>'+neck;break;
+    case 'os6': // echarpe tombante
+      body=torso+'<path d="M34 77 Q50 86 66 77 L66 84 Q50 92 34 84 Z" fill="'+ol+'"/><path d="M60 82 l7 16 l-6 1 l-3 -15 Z" fill="'+om+'"/><path d="M34 80 q16 6 32 0" fill="none" stroke="'+od+'" stroke-width="1" opacity=".6"/>'+neck;break;
+    case 'os7': // veste ouverte + t-shirt
+      body=torso+'<path d="M46 76 L50 100 L54 76 Z" fill="'+_shade(out,1.5)+'"/><path d="M44 76 L40 100 H29 Q29 80 40 76 Z" fill="'+od+'"/><path d="M56 76 L60 100 H71 Q71 80 60 76 Z" fill="'+od+'"/><path d="M44 76 L40 100 M56 76 L60 100" stroke="'+ol+'" stroke-width="1" opacity=".5"/>'+neck;break;
     case 'os8': // col roule
-      body=torso+'<path d="M40 74 h20 v6 a10 6 0 0 1 -20 0 Z" fill="'+ol+'"/>'+neck;break;
-    case 'os9': // cape de heros
-      body='<path d="M24 100 Q20 78 40 76 L40 100 Z" fill="'+od+'"/><path d="M76 100 Q80 78 60 76 L60 100 Z" fill="'+od+'"/>'+torso+'<circle cx="50" cy="84" r="4" fill="#ffd166" stroke="'+ol+'" stroke-width="1"/>'+neck;break;
-    case 'os10': // combinaison spatiale
-      body=torso+'<circle cx="50" cy="88" r="9" fill="#0b1220" stroke="#9fd0ff" stroke-width="1.6"/><circle cx="50" cy="88" r="9" fill="none" stroke="#00e5ff" stroke-width="1" opacity=".5"/><path d="M30 82 H70" stroke="#9fd0ff" stroke-width="1.4" opacity=".5"/>'+neck;break;
-    case 'os11': // kimono
-      body=torso+'<path d="M40 76 L50 90 L60 76 Z" fill="#ffffff" opacity=".9"/><path d="M50 90 L50 100" stroke="'+od+'" stroke-width="3"/><path d="M30 90 H70" stroke="'+ol+'" stroke-width="3" opacity=".8"/>'+neck;break;
-    case 'os12': // maillot raye
-      body=torso+'<path d="M26 82 H74 M26 90 H74 M26 98 H74" stroke="'+ol+'" stroke-width="3" opacity=".8"/>'+neck;break;
+      body=torso+'<path d="M39 73 h22 v7 a11 6 0 0 1 -22 0 Z" fill="'+ol+'"/><path d="M39 76 h22" stroke="'+od+'" stroke-width="1" opacity=".5"/>'+neck;break;
+    case 'os9': // cape de heros + embleme
+      body='<defs><linearGradient id="'+uid+'cp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+om+'"/><stop offset="1" stop-color="'+od+'"/></linearGradient></defs><path d="M24 100 Q18 76 40 75 L40 100 Z" fill="url(#'+uid+'cp)"/><path d="M76 100 Q82 76 60 75 L60 100 Z" fill="url(#'+uid+'cp)"/>'+torso+'<path d="M50 80 l4 6 -4 6 -4 -6 Z" fill="#ffd166" stroke="'+ol+'" stroke-width="1"/>'+neck;break;
+    case 'os10': // combinaison spatiale : casque/visiere + tubes
+      body=torso+'<circle cx="50" cy="88" r="10" fill="#0b1220" stroke="#9fd0ff" stroke-width="1.8"/><path d="M44 84 a7 7 0 0 1 9 1" fill="none" stroke="#bfeaff" stroke-width="1.4" opacity=".8"/><path d="M30 82 H70" stroke="#9fd0ff" stroke-width="1.4" opacity=".5"/><circle cx="33" cy="86" r="1.6" fill="#ff4b00"/><circle cx="67" cy="86" r="1.6" fill="#06d6a0"/>'+neck;break;
+    case 'os11': // kimono + ceinture obi
+      body=torso+'<path d="M40 76 L50 92 L60 76 Z" fill="#fbfbff"/><path d="M50 92 L50 100" stroke="'+od+'" stroke-width="3"/><rect x="28" y="90" width="44" height="6" fill="'+_shade(out,.55)+'"/><rect x="46" y="90" width="8" height="6" fill="'+ol+'"/>'+neck;break;
+    case 'os12': // maillot raye + numero
+      body=torso+'<path d="M26 82 H74 M26 90 H74 M26 98 H74" stroke="'+ol+'" stroke-width="3" opacity=".85"/><text x="50" y="96" font-size="9" font-weight="800" fill="#fff" text-anchor="middle" opacity=".9">7</text>'+neck;break;
     case 'os0': default:
-      body=torso+neck;
+      body=torso+'<path d="M30 88 q20 6 40 0" fill="none" stroke="'+od+'" stroke-width="1.4" opacity=".5"/>'+neck;
   }
   // tete (face shape)
   let head;
