@@ -55,6 +55,52 @@ const AV_AURAS=[
 const AV_OUTFITS=['#00e5ff','#a855f7','#ff4b00','#06d6a0','#ffd166','#ef476f','#3b82f6','#94a3b8','#0d0d0d','#ffffff','#7CFC9B','#ff5fa2','#f59e0b','#8b5cf6','#10b981','#e11d48'];
 
 const AVATAR_CATS={skin:AV_SKINS,face:AV_FACES,eyes:AV_EYES,hair:AV_HAIR,hat:AV_HATS,aura:AV_AURAS};
+
+/* ---- generation procedurale d'accessoires (teintes) pour atteindre 500+ ----
+   On AJOUTE seulement (on ne renomme/supprime jamais d'id existant), donc les
+   objets deja achetes par les joueurs restent valides. */
+function _hslHex(h,s,l){
+  s/=100;l/=100;const k=n=>(n+h/30)%12;const a=s*Math.min(l,1-l);
+  const f=n=>{const c=l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return Math.round(255*c).toString(16).padStart(2,'0');};
+  return '#'+f(0)+f(8)+f(4);
+}
+(function _genAvatarExtras(){
+  // teintes de peau supplementaires (fantaisie) : ~210 nouvelles
+  for(let i=0;i<210;i++){
+    const h=Math.round((i*137.508)%360), s=45+(i%5)*11, l=42+(i%6)*7;
+    const c=_hslHex(h,s,l);
+    let cost,cur,req;
+    if(i<14){cost=40+ (i%4)*15;cur='coin';}
+    else if(i<150){cost=60+ (i%6)*15;cur='coin';}
+    else {cost=8+(i%12);cur='gem'; if(i>=195)req='legende'; else if(i>=175)req='champion';}
+    AV_SKINS.push({id:'sk_g'+i,c,cost,cur,...(req?{req}:{})});
+  }
+  // auras colorees supplementaires : ~235 nouvelles
+  for(let i=0;i<235;i++){
+    const h=Math.round((i*99.7+40)%360), s=70+(i%4)*8, l=52+(i%4)*6;
+    const c=_hslHex(h,s,l);
+    let cost,cur,req;
+    if(i<120){cost=70+ (i%6)*15;cur='coin';}
+    else {cost=10+(i%14);cur='gem'; if(i>=185)req='mythe'; else if(i>=160)req='elite';}
+    AV_AURAS.push({id:'au_g'+i,c,cost,cur,...(req?{req}:{})});
+  }
+})();
+/* nombre total d'accessoires (info) */
+function avatarItemCount(){return AV_SKINS.length+AV_FACES.length+AV_EYES.length+AV_HAIR.length+AV_HATS.length+AV_AURAS.length;}
+/* tire un accessoire payant aleatoire NON encore possede (pour les gains d'arcade) */
+function randomLockedAvatarItem(p){
+  p=p||loadProfile();const owned=p.ownedItems||[];const pool=[];
+  for(const cat of ['skin','aura','eyes','hair','hat']){
+    (AVATAR_CATS[cat]||[]).forEach(it=>{ if(it.cost && !it.req && !owned.includes(cat+':'+it.id)) pool.push({cat,id:it.id}); });
+  }
+  if(!pool.length)return null;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function grantAvatarItem(cat,id){
+  const p=loadProfile();p.ownedItems=p.ownedItems||[];const key=cat+':'+id;
+  if(!p.ownedItems.includes(key)){p.ownedItems.push(key);saveProfile(p);return true;}
+  return false;
+}
 function avPart(cat,id){return (AVATAR_CATS[cat]||[]).find(x=>x.id===id);}
 function skinColor(id){return (AV_SKINS.find(s=>s.id===id)||AV_SKINS[1]).c;}
 
@@ -189,16 +235,21 @@ function _genCharacters(){
       name=name.charAt(0).toUpperCase()+name.slice(1);
       const emoji=_CARD_EMOJI[Math.floor(rnd()*_CARD_EMOJI.length)];
       const rIdx=RARITY_ORDER.indexOf(rar);
-      // type de bonus : les jokers seulement sur rare+ et assez peu
+      // 6 types de pouvoirs repartis -> beaucoup moins de redondance
+      // coin, xp, luck (fractions) ; time (secondes) ; gem (gemmes/partie) ; joker (rare+)
       let type;
       const roll=rnd();
-      if(rIdx>=2 && roll<0.12) type='joker';
-      else if(roll<0.40) type='coin';
-      else if(roll<0.75) type='xp';
-      else type='luck';
+      if(rIdx>=2 && roll<0.10) type='joker';
+      else if(roll<0.24) type='coin';
+      else if(roll<0.42) type='xp';
+      else if(roll<0.60) type='luck';
+      else if(roll<0.80) type='time';
+      else type='gem';
       let val;
       if(type==='joker') val=(rIdx>=4?2:1);
-      else val=Math.round((lo+rnd()*(hi-lo))*1000)/1000;
+      else if(type==='time') val=[1,1,2,2,3,3,4][rIdx]||1;          // +secondes de reflexion
+      else if(type==='gem')  val=[1,1,2,2,3,3,4][rIdx]||1;          // +gemmes par partie
+      else val=Math.round((lo+rnd()*(hi-lo))*1000)/1000;           // coin/xp/luck
       out.push({id,name,emoji,rarity:rar,bonus:{type,val}});
     }
   });
@@ -210,7 +261,9 @@ function cardById(id){return CARD_BY_ID[id];}
 function rarMeta(r){return RARITY[r]||RARITY.commun;}
 function rarLabelFull(r){const m=rarMeta(r);return (typeof getLang==='function'&&getLang()==='en')?m.en:m.fr;}
 
-function cardBonus(p,type){p=p||loadProfile();let s=0;(p.deck||[]).forEach(id=>{const c=cardById(id);if(c&&c.bonus.type===type&&(type==='coin'||type==='xp'))s+=c.bonus.val;});return s;}
+function cardBonus(p,type){p=p||loadProfile();let s=0;(p.deck||[]).forEach(id=>{const c=cardById(id);if(c&&c.bonus.type===type&&(type==='coin'||type==='xp'||type==='time'||type==='gem'))s+=c.bonus.val;});return s;}
+function deckTime(p){return cardBonus(p,'time');}   // secondes de reflexion en plus
+function deckGem(p){return cardBonus(p,'gem');}     // gemmes par partie en plus
 function deckLuck(p){p=p||loadProfile();let s=0;(p.deck||[]).forEach(id=>{const c=cardById(id);if(c&&c.bonus.type==='luck')s+=c.bonus.val;});return s;}
 function deckJokerStart(p){p=p||loadProfile();let s=0;(p.deck||[]).forEach(id=>{const c=cardById(id);if(c&&c.bonus.type==='joker')s+=c.bonus.val;});return s;}
 function collectionCount(p){p=p||loadProfile();return Object.keys(p.collection||{}).filter(k=>p.collection[k]>0).length;}
@@ -235,11 +288,20 @@ function rollRarity(luck){
 function openPack(n,luck){
   n=n||3; if(luck==null)luck=totalLuck();
   const out=[];
+  const prof=loadProfile();const coll=prof.collection||{};
   for(let i=0;i<n;i++){
     const rar=rollRarity(luck);
     const pool=CHARACTERS.filter(c=>c.rarity===rar);
-    const card=pool[Math.floor(Math.random()*pool.length)];
+    let card;
+    // sur les raretes basses : 45% du temps, on retombe sur une carte DEJA possedee
+    // (de cette rarete) -> cree des doublons recyclables, sans bloquer la collection
+    if((rar==='commun'||rar==='peu_commun')&&Math.random()<0.45){
+      const owned=pool.filter(c=>(coll[c.id]||0)>0);
+      if(owned.length)card=owned[Math.floor(Math.random()*owned.length)];
+    }
+    if(!card)card=pool[Math.floor(Math.random()*pool.length)];
     const isNew=grantCard(card.id);
+    if(isNew)coll[card.id]=1;else coll[card.id]=(coll[card.id]||0)+1;
     out.push({id:card.id,isNew});
   }
   const p=loadProfile();p.packsOpened=(p.packsOpened||0)+1;saveProfile(p);
@@ -268,26 +330,34 @@ function recycleDuplicates(){
 ============================================================ */
 const SHOP_ITEMS={
   packs:[
+    {id:'pack0',n:'Mini Pack',d:'1 carte',cards:1,cost:50,cur:'coin',emoji:'🎴'},
     {id:'pack1',n:'Pack Standard',d:'3 cartes',cards:3,cost:140,cur:'coin',emoji:'📦'},
     {id:'pack1b',n:'Gros Pack',d:'5 cartes',cards:5,cost:230,cur:'coin',emoji:'📦'},
+    {id:'pack_xl',n:'Pack Geant',d:'12 cartes',cards:12,cost:520,cur:'coin',emoji:'📚'},
     {id:'pack2',n:'Pack Premium',d:'5 cartes · meilleures chances',cards:5,cost:25,cur:'gem',emoji:'🎁',luck:.18},
     {id:'pack3',n:'Pack Legende',d:'5 cartes · chance epique++',cards:5,cost:60,cur:'gem',emoji:'💠',luck:.45},
     {id:'pack4',n:'Pack Mythique',d:'8 cartes · chance legendaire++',cards:8,cost:120,cur:'gem',emoji:'🌌',luck:.8},
+    {id:'pack_diam',n:'Pack Diamant',d:'15 cartes · legendaire/dore++',cards:15,cost:320,cur:'gem',emoji:'💎',luck:1.0},
     {id:'pack5',n:'Coffre Doré',d:'10 cartes · vise le doré ★',cards:10,cost:220,cur:'gem',emoji:'🏆',luck:1.4},
   ],
   boosters:[
     {id:'jk_skip',n:'Joker Passer x3',cost:90,cur:'coin',emoji:'⏭️',give:{joker:'skip',n:3}},
+    {id:'jk_skip5',n:'Joker Passer x5',cost:140,cur:'coin',emoji:'⏭️',give:{joker:'skip',n:5}},
     {id:'jk_time',n:'Joker +5s x3',cost:70,cur:'coin',emoji:'⏱️',give:{joker:'time',n:3}},
     {id:'jk_hint',n:'Joker Indice x3',cost:60,cur:'coin',emoji:'💡',give:{joker:'hint',n:3}},
+    {id:'jk_hint5',n:'Joker Indice x5',cost:100,cur:'coin',emoji:'💡',give:{joker:'hint',n:5}},
     {id:'jk_mega',n:'Pack Jokers x9',d:'3 de chaque',cost:18,cur:'gem',emoji:'🃏',give:{jokerAll:3}},
+    {id:'jk_ultra',n:'Pack Jokers x15',d:'5 de chaque',cost:32,cur:'gem',emoji:'🎰',give:{jokerAll:5}},
     {id:'coins_s',n:'Sac de 250 pieces',cost:10,cur:'gem',emoji:'🪙',give:{coins:250}},
     {id:'coins_l',n:'Coffre de 700 pieces',cost:25,cur:'gem',emoji:'💰',give:{coins:700}},
+    {id:'coins_xl',n:'Tresor de 1500 pieces',cost:45,cur:'gem',emoji:'💰',give:{coins:1500}},
   ],
   gems:[
     {id:'g1',n:'10 gemmes',cost:320,cur:'coin',emoji:'💎',give:{gems:10}},
     {id:'g2',n:'25 gemmes',cost:700,cur:'coin',emoji:'💎',give:{gems:25}},
     {id:'g3',n:'60 gemmes',cost:1500,cur:'coin',emoji:'💎',give:{gems:60}},
     {id:'g4',n:'150 gemmes',cost:3400,cur:'coin',emoji:'👑',give:{gems:150}},
+    {id:'g5',n:'400 gemmes',cost:7000,cur:'coin',emoji:'👑',give:{gems:400}},
   ],
 };
 
