@@ -91,7 +91,15 @@ function endScreen(score,coins,game,replayFn){
     cardHtml='<div class="packcard" style="border-top-color:'+col+';background:linear-gradient(180deg,'+col+'33,var(--bc));margin:6px auto"><div class="pe">'+c.emoji+'</div><div style="font-size:.7rem;font-weight:700">'+c.name+'</div><div style="font-size:.56rem;font-weight:800;color:'+col+'">'+RARITY[c.rarity].lbl+'</div>'+(drawn.isNew?'<div class="newtag">'+t('pack_new')+'</div>':'')+'</div><div style="color:var(--c);font-weight:700;font-size:.8rem">'+t('arc_card_won')+'</div>';
   }
   const s=document.getElementById('stage');
-  s.innerHTML='<div class="arcscore">'+score+'</div><div style="color:var(--go);font-weight:700">'+t('arc_coins_won',{C:coins})+' 🪙</div>'+cardHtml+
+  // chance de gagner un accessoire d'avatar (~12%)
+  let itemHtml='';
+  if(score>0&&Math.random()<0.12&&typeof randomLockedAvatarItem==='function'){
+    const it=randomLockedAvatarItem();
+    if(it&&grantAvatarItem(it.cat,it.id)){
+      itemHtml='<div style="margin:6px auto;padding:8px 12px;border:1px solid var(--go);border-radius:12px;background:rgba(255,209,102,.08)"><div style="font-size:1.4rem">🎁</div><div style="color:var(--go);font-weight:700;font-size:.8rem">'+t('arc_item_won')+'</div></div>';
+    }
+  }
+  s.innerHTML='<div class="arcscore">'+score+'</div><div style="color:var(--go);font-weight:700">'+t('arc_coins_won',{C:coins})+' 🪙</div>'+cardHtml+itemHtml+
     '<button class="btn-p" id="again">'+t('arc_again')+'</button><button class="btn-s" id="bk">'+t('arc_back')+'</button>';
   document.getElementById('again').onclick=replayFn;document.getElementById('bk').onclick=backHub;
   SFX.win();
