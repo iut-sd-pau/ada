@@ -72,7 +72,6 @@ window.addEventListener('load',()=>{
   html+='<div class="card sc">';
   html+='<div class="sr"><span style="color:var(--txd)">'+t('res_correct')+'</span><span style="font-weight:700;color:var(--ok)">'+(res.correct||0)+'</span></div>';
   if(MODE!=='online')html+='<div class="sr"><span style="color:var(--txd)">'+t('res_missed')+'</span><span style="font-weight:700;color:var(--er)">'+(res.missed||0)+'</span></div>';
-  html+='<div class="sr"><span style="color:var(--txd)">'+t('res_streak')+'</span><span style="font-weight:700;color:var(--fl)">'+(res.bestStreak||0)+' 🔥</span></div>';
   if((res.coinsWon||0)>0)html+='<div class="sr"><span style="color:var(--txd)">'+t('res_coins_won')+'</span><span style="font-weight:700;color:var(--go)">+'+res.coinsWon+' 🪙</span></div>';
   if((res.gemsWon||0)>0)html+='<div class="sr"><span style="color:var(--txd)">'+t('res_gems_won')+'</span><span style="font-weight:700;color:#22d3ee">+'+res.gemsWon+' 💎</span></div>';
   html+='<div class="sr"><span style="color:var(--txd)">'+t('res_xp_total')+'</span><span style="font-weight:700;color:var(--pu)">'+newXP+' XP</span></div></div>';
@@ -103,7 +102,7 @@ window.addEventListener('load',()=>{
     html+='<div class="card sc" style="padding:16px 18px"><div class="lbt" style="padding:0 0 10px">'+t('res_share_ttl')+'</div>';
     html+='<div style="font-family:var(--ac);font-weight:800;color:var(--c);font-size:.95rem;margin-bottom:6px">'+t('menu_daily_ch')+(res.dailyNum||'')+'</div>';
     html+='<div style="font-size:1.6rem;letter-spacing:3px;margin-bottom:6px">'+grid+'</div>';
-    html+='<div style="font-size:.82rem;color:var(--txd)">'+(res.correct||0)+'/'+tot+' · '+t('res_share_streak')+' '+(res.bestStreak||0)+' 🔥</div>';
+    html+='<div style="font-size:.82rem;color:var(--txd)">'+(res.correct||0)+'/'+tot+'</div>';
     html+='<button class="btn-p" style="margin-top:14px" id="shareBtn">'+t('res_share_btn')+'</button></div>';
     html+='<div class="card lbc" id="dailyLB" style="display:none"></div>';
   }
@@ -132,8 +131,7 @@ function dailyShareText(res){
   // lien vers la racine du jeu (fonctionne quel que soit l'hebergement)
   let link=location.href.replace(/[^/]*$/,'')+'index.html';
   return '🧠 FLASH BRAIN — '+t('menu_daily_ch')+(res.dailyNum||'')+'\n'+
-         grid+'  '+(res.correct||0)+'/'+tot+'\n'+
-         '⚡ '+t('res_share_streak')+' '+(res.bestStreak||0)+'\n'+link;
+         grid+'  '+(res.correct||0)+'/'+tot+'\n'+link;
 }
 async function shareDaily(res){
   const text=dailyShareText(res);
