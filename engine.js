@@ -13,13 +13,13 @@
    hors-ligne, mais l'Arene en ligne affichera "a configurer".
 ============================================================ */
 const FB_CFG = {
-  apiKey: "AIzaSyDu09pSnSItRulk3H4RJKCuFzP36bFFsI8",
-  authDomain: "flashbrain-10da4.firebaseapp.com",
-  databaseURL: "https://flashbrain-10da4-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "flashbrain-10da4",
-  storageBucket: "flashbrain-10da4.firebasestorage.app",
-  messagingSenderId: "394372139876",
-  appId: "1:394372139876:web:f415cb800ee1fd6adc8871",
+  apiKey:            "VOTRE_API_KEY",
+  authDomain:        "VOTRE_PROJECT.firebaseapp.com",
+  databaseURL:       "https://VOTRE_PROJECT-default-rtdb.firebaseio.com",
+  projectId:         "VOTRE_PROJECT",
+  storageBucket:     "VOTRE_PROJECT.appspot.com",
+  messagingSenderId: "VOTRE_SENDER_ID",
+  appId:             "VOTRE_APP_ID",
 };
 
 let _db=null, _fbOk=false, _isLocal=false;
@@ -72,6 +72,22 @@ async function fbGetLB(n=30){
     const s=await _db.ref('lb').orderByChild('xp').limitToLast(n).once('value');
     const d=s.val();if(!d)return[];
     return Object.values(d).sort((a,b)=>b.xp-a.xp);
+  }catch{return null;}
+}
+
+/* ---- Classement du DEFI DU JOUR (par date) ----
+   Cle : daily/{seed}/{uid}. Classement = plus de bonnes reponses,
+   puis le plus RAPIDE (timeMs croissant). N'affecte pas le LB global. */
+async function fbSetDailyScore(seed,pseudo,correct,total,timeMs,streak){
+  if(!_db||!pseudo||!seed)return;
+  try{await _db.ref('daily/'+seed+'/'+myUid()).set({uid:myUid(),pseudo,correct,total,timeMs,streak,ts:Date.now()});}catch{}
+}
+async function fbGetDailyLB(seed,n=200){
+  if(!_db||!seed)return null;
+  try{
+    const s=await _db.ref('daily/'+seed).limitToLast(n).once('value');
+    const d=s.val();if(!d)return[];
+    return Object.values(d).sort((a,b)=>(b.correct-a.correct)||((a.timeMs||1e12)-(b.timeMs||1e12)));
   }catch{return null;}
 }
 
@@ -689,6 +705,15 @@ function onlineRuleFeasible(id,fl){
    11) UTILS + INIT
 ============================================================ */
 function pickRandom(arr){return arr[Math.floor(Math.random()*arr.length)];}
+/* ===== Defi du jour : aleatoire DETERMINISTE par date =====
+   Tous les joueurs obtiennent le meme defi le meme jour (style Wordle).
+   Base sur la date LOCALE pour coller au compte a rebours affiche. */
+function dailyDayNumber(d){d=d||new Date();return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);}
+function dailySeedStr(d){d=d||new Date();const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());}
+function dailyNumber(d){return (dailyDayNumber(d)%99999)+1;} /* numero affiche, stable et coherent avec le puzzle */
+function _fbHash32(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=(h<<13)|(h>>>19);}return (Math.imul(h^(h>>>16),2246822507)^Math.imul(h^(h>>>13),3266489909))>>>0;}
+function seededRng(seedStr){let a=_fbHash32(String(seedStr));return function(){a|=0;a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return ((t^(t>>>14))>>>0)/4294967296;};}
+function seededPick(arr,rnd){return arr[Math.floor(rnd()*arr.length)];}
 function setActiveNav(id){document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.nav===id));}
 function goTo(page){Audio?.SFX?.navigate?.();window.location.href=page;}
 

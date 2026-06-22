@@ -28,10 +28,21 @@ body{padding-bottom:80px;}
 .boks{background:rgba(6,214,160,.2);border:1px solid var(--ok);color:var(--ok);}
 .bht{background:rgba(255,75,0,.2);border:1px solid var(--fl);color:var(--fl);}
 .blv{background:rgba(255,209,102,.15);border:1px solid var(--go);color:var(--go);}
+.help-btn{width:38px;height:38px;border-radius:50%;background:var(--bc);border:1px solid var(--br);color:var(--c);font-weight:800;font-size:1.1rem;cursor:pointer;transition:var(--t);line-height:1;}
+.help-btn:hover{border-color:var(--c);box-shadow:0 0 12px var(--cd);transform:scale(1.05);}
+.coach-ov{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:22px;animation:cfade .3s ease;}
+@keyframes cfade{from{opacity:0}to{opacity:1}}
+.coach-card{background:#0d0d1a;border:1px solid var(--brh);border-radius:var(--rlg);padding:24px 22px;width:100%;max-width:360px;max-height:86vh;overflow-y:auto;display:flex;flex-direction:column;gap:14px;animation:cpop .35s cubic-bezier(.2,.9,.3,1.3);}
+@keyframes cpop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.coach-h{font-family:var(--ac);font-size:1.4rem;font-weight:900;color:var(--c);text-align:center;text-shadow:0 0 16px var(--cg);}
+.coach-i{font-size:.85rem;color:var(--txd);text-align:center;line-height:1.6;}
+.coach-li{display:flex;align-items:flex-start;gap:10px;font-size:.84rem;color:var(--tx);line-height:1.45;padding:9px 12px;background:var(--bc);border:1px solid var(--br);border-radius:var(--rmd);}
+.coach-li b{color:var(--c);}
+.coach-acts{display:flex;flex-direction:column;gap:9px;margin-top:4px;}
 </style></head><body>
 <div class="ambient"><div class="ambient-orb orb-1"></div><div class="ambient-orb orb-2"></div><div class="ambient-orb orb-3"></div></div>
 <div class="page fade-in"><div class="page-inner">
-  <div class="headrow"><span style="width:38px"></span><span style="flex:1"></span><span data-bell></span></div>
+  <div class="headrow"><button class="help-btn" id="helpBtn" aria-label="aide" onclick="SFX.navigate();location.href='guide.html'">?</button><span style="flex:1"></span><span data-bell></span></div>
   <div class="hero">
     <div style="font-size:.77rem;color:var(--txd)" id="greet"></div>
     <div class="hn" id="hname"></div>
@@ -42,6 +53,7 @@ body{padding-bottom:80px;}
     <div class="qc"><div class="qv" id="qxp" style="color:var(--pu)">0</div><div class="ql" id="qxpl"></div></div>
     <div class="qc"><div class="qv" id="qco" style="color:var(--go)">0</div><div class="ql" id="qcol"></div></div>
     <div class="qc"><div class="qv" id="qgm" style="color:var(--pu)">0</div><div class="ql" id="qgml"></div></div>
+    <div class="qc"><div class="qv" id="qst" style="color:var(--fl)">0</div><div class="ql" id="qstl"></div></div>
     <div class="qc"><div class="qv" id="qpf" style="color:var(--c)">0</div><div class="ql" id="qpfl"></div></div>
   </div>
   <div class="sec" style="margin-top:20px">
@@ -67,6 +79,19 @@ body{padding-bottom:80px;}
     </div>
   </div>
 </div></div>
+<div class="coach-ov" id="coachOv" style="display:none">
+  <div class="coach-card">
+    <div class="coach-h" id="cTitle"></div>
+    <div class="coach-i" id="cIntro"></div>
+    <div class="coach-li" id="cDaily"></div>
+    <div class="coach-li" id="cModes"></div>
+    <div class="coach-li" id="cTabs"></div>
+    <div class="coach-acts">
+      <button class="btn-p" id="cFull" onclick="coachFull()"></button>
+      <button class="btn-s" id="cOk" onclick="coachClose()"></button>
+    </div>
+  </div>
+</div>
 <nav class="nav-bar">
   <a class="nav-item active" data-nav="menu" href="menu.html"><span class="ni">🏠</span><span data-i18n="nav_home"></span></a>
   <a class="nav-item" data-nav="world" href="world.html"><span class="ni">🌍</span><span data-i18n="nav_world"></span></a>
@@ -84,13 +109,15 @@ window.addEventListener('load',()=>{
   document.getElementById('qxp').textContent=p.xp;
   document.getElementById('qco').textContent=p.coins||0;
   document.getElementById('qgm').textContent=p.gems||0;
+  document.getElementById('qst').textContent=p.bestStreak||0;
   document.getElementById('qpf').textContent=p.perfectGames||0;
   document.getElementById('qxpl').textContent=t('menu_xp');
   document.getElementById('qcol').textContent=t('menu_coins');
   document.getElementById('qgml').textContent=t('cur_gems');
+  document.getElementById('qstl').textContent=t('menu_streak');
   document.getElementById('qpfl').textContent=t('menu_perfect');
   document.getElementById('dlbl').textContent=t('menu_daily_lbl');
-  const dn=Math.floor(Date.now()/86400000)%999+1;
+  const dn=(typeof dailyNumber==='function')?dailyNumber():(Math.floor(Date.now()/86400000)%999+1);
   document.getElementById('dcn').textContent=t('menu_daily_ch')+dn;
   document.getElementById('dcd').textContent=t('menu_daily_desc');
   const now=new Date(),next=new Date(now);next.setHours(24,0,0,0);const diff=next-now;
@@ -104,7 +131,23 @@ window.addEventListener('load',()=>{
   document.getElementById('qcl').textContent=t('menu_collection');
   document.getElementById('qsh').textContent=t('menu_shop');
   setActiveNav('menu');setTimeout(()=>narrate('welcome'),500);
+  maybeCoach();
 });
+function maybeCoach(){
+  let seen=false;try{seen=localStorage.getItem('fb_coach')==='1';}catch(e){}
+  if(seen)return;
+  document.getElementById('cTitle').textContent=t('coach_title');
+  document.getElementById('cIntro').textContent=t('coach_intro');
+  document.getElementById('cDaily').innerHTML=t('coach_daily');
+  document.getElementById('cModes').innerHTML=t('coach_modes');
+  document.getElementById('cTabs').innerHTML=t('coach_tabs');
+  document.getElementById('cFull').textContent=t('coach_full');
+  document.getElementById('cOk').textContent=t('coach_ok');
+  document.getElementById('coachOv').style.display='flex';
+}
+function coachSeen(){try{localStorage.setItem('fb_coach','1');}catch(e){}}
+function coachClose(){coachSeen();try{SFX.select();}catch(e){}document.getElementById('coachOv').style.display='none';}
+function coachFull(){coachSeen();try{SFX.navigate();}catch(e){}location.href='guide.html';}
 function go(mode){
   SFX.navigate();
   if(mode==='online'){ window.location.href='setup.html?mode=online'; return; }

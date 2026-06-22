@@ -30,6 +30,7 @@ body{padding-bottom:80px;}
   <div class="panel" id="p-solo">
     <div><div class="f-label" id="difflbl" style="margin-bottom:12px"></div>
     <div class="dg">
+      <button class="db" data-d="kids" onclick="selD(this,'kids')"><span class="dbic">🧸</span><span class="dbn" id="dnk"></span><span class="dbh">14s</span></button>
       <button class="db" data-d="easy" onclick="selD(this,'easy')"><span class="dbic">🌱</span><span class="dbn" id="dn0"></span><span class="dbh">10s</span></button>
       <button class="db active" data-d="normal" onclick="selD(this,'normal')"><span class="dbic">⚡</span><span class="dbn" id="dn1"></span><span class="dbh">5s</span></button>
       <button class="db" data-d="hard" onclick="selD(this,'hard')"><span class="dbic">💀</span><span class="dbn" id="dn2"></span><span class="dbh">3s</span></button>
@@ -80,7 +81,7 @@ body{padding-bottom:80px;}
   <a class="nav-item" data-nav="settings" href="settings.html"><span class="ni">⚙️</span><span data-i18n="nav_settings"></span></a>
 </nav>
 <script>
-const DXP={easy:10,normal:15,hard:25,extreme:45,daily:30};
+const DXP={kids:8,easy:10,normal:15,hard:25,extreme:45,daily:30};
 const up=new URLSearchParams(location.search);
 let MODE=up.get('mode')||sessionStorage.getItem('fb_mode')||'solo',DIFF='normal',PC=2,ODIFF='normal',MAXP=4,ONTAB='create';
 function back(){ if(MODE==='online'){window.location.href='menu.html';} else history.back(); }
@@ -94,7 +95,7 @@ window.addEventListener('load',()=>{
   // labels
   document.getElementById('difflbl').textContent=t('setup_diff');
   document.getElementById('difflbl2').textContent=t('setup_diff');
-  document.getElementById('dn0').textContent=t('setup_easy');document.getElementById('dn1').textContent=t('setup_normal');document.getElementById('dn2').textContent=t('setup_hard');document.getElementById('dn3').textContent=t('setup_extreme');
+  document.getElementById('dnk').textContent=t('setup_kids');document.getElementById('dn0').textContent=t('setup_easy');document.getElementById('dn1').textContent=t('setup_normal');document.getElementById('dn2').textContent=t('setup_hard');document.getElementById('dn3').textContent=t('setup_extreme');
   document.getElementById('odn0').textContent=t('setup_easy');document.getElementById('odn1').textContent=t('setup_normal');document.getElementById('odn2').textContent=t('setup_hard');document.getElementById('odn3').textContent=t('setup_extreme');
   document.getElementById('xpplbl').textContent=t('setup_xp_lbl');
   document.getElementById('cntlbl').textContent=t('setup_count');

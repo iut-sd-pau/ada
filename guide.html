@@ -1,0 +1,203 @@
+<!DOCTYPE html><html><head><title>FLASH BRAIN — Guide</title><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<link rel="stylesheet" href="core.css">
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="i18n.js"></script><script src="localnet.js"></script><script src="engine.js"></script><script src="audio.js"></script><script src="boost.js"></script>
+<style>
+body{overflow:hidden;}
+.gtop{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;align-items:center;gap:12px;padding:14px 18px;}
+.gdots{flex:1;display:flex;gap:5px;}
+.gdot{flex:1;height:4px;border-radius:2px;background:var(--br);transition:background .3s;}
+.gdot.active{background:var(--c);box-shadow:0 0 6px var(--c);}.gdot.done{background:rgba(0,229,255,.35);}
+.gskip{font-size:.78rem;color:var(--txd);cursor:pointer;white-space:nowrap;background:none;border:none;padding:4px 6px;}
+.gskip:hover{color:var(--c);}
+.gstage{position:fixed;inset:0;z-index:10;}
+.gsl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 22px 96px;opacity:0;transform:translateX(28px);transition:opacity .35s,transform .35s;pointer-events:none;overflow-y:auto;}
+.gsl.active{opacity:1;transform:none;pointer-events:all;}
+.gsl.exit{opacity:0;transform:translateX(-28px);pointer-events:none;}
+.gi{font-size:4.2rem;margin-bottom:14px;animation:gb 2.4s ease-in-out infinite;filter:drop-shadow(0 0 18px var(--cg));}
+@keyframes gb{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.gt{font-family:var(--ac);font-size:clamp(1.4rem,5.5vw,2rem);font-weight:900;color:var(--c);text-align:center;margin-bottom:14px;letter-spacing:.06em;text-shadow:0 0 18px var(--cg);white-space:pre-line;}
+.gx{font-size:.96rem;color:var(--txd);text-align:center;line-height:1.7;max-width:340px;margin-bottom:22px;}
+.gx b{color:var(--tx);} .gx em{color:var(--go);font-weight:700;font-style:normal;}
+/* demo card (slide 1) */
+.gdemo{width:100%;max-width:340px;background:var(--bc);border:1px solid var(--br);border-radius:var(--rlg);padding:16px 18px;margin-bottom:22px;}
+.gdrow{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--br);}.gdrow:last-child{border-bottom:none;}
+.gdl{font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--txf);margin-bottom:4px;}.gdv{font-weight:700;}
+/* rows (modes / tabs) */
+.grows{display:flex;flex-direction:column;gap:9px;width:100%;max-width:360px;margin-bottom:22px;}
+.grow{display:flex;align-items:flex-start;gap:13px;padding:12px 15px;background:var(--bc);border:1px solid var(--br);border-radius:var(--rmd);text-align:left;}
+.grow .gic{font-size:1.5rem;line-height:1;flex-shrink:0;}
+.grnm{font-weight:700;font-size:.9rem;margin-bottom:2px;}
+.grds{font-size:.74rem;color:var(--txd);line-height:1.4;}
+/* tip list */
+.gtips{display:flex;flex-direction:column;gap:10px;width:100%;max-width:360px;margin-bottom:22px;text-align:left;}
+.gtip{display:flex;align-items:flex-start;gap:11px;font-size:.86rem;color:var(--tx);line-height:1.45;}
+.gtip .gtn{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--cd);color:var(--c);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.78rem;}
+/* nav footer */
+.gnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;gap:10px;padding:16px 20px calc(16px + env(safe-area-inset-bottom,0));background:linear-gradient(to top,var(--bg,#04040a) 55%,transparent);}
+.gbtn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;border-radius:var(--rmd);font-weight:700;font-size:.98rem;border:none;cursor:pointer;transition:var(--t);}
+.gprev{flex:0 0 56px;background:transparent;border:1px solid var(--br);color:var(--txd);font-size:1.2rem;}
+.gprev:hover{border-color:var(--c);color:var(--c);}
+.gnext{background:var(--c);color:#04040a;box-shadow:0 0 22px var(--cg);}
+.gnext:hover{filter:brightness(1.1);transform:translateY(-2px);}
+.gnext.fin{background:linear-gradient(135deg,var(--fl),#ff0080);color:#fff;box-shadow:0 0 24px var(--flg);}
+</style></head><body>
+<div class="ambient"><div class="ambient-orb orb-1"></div><div class="ambient-orb orb-2"></div><div class="ambient-orb orb-3"></div></div>
+
+<div class="gtop">
+  <div class="gdots" id="gdots"></div>
+  <button class="gskip" id="gskip" onclick="leave()"></button>
+</div>
+
+<div class="gstage" id="gstage">
+  <!-- 0: principe -->
+  <div class="gsl active">
+    <div class="gi">🧠</div><h1 class="gt" id="t_s1"></h1>
+    <div class="gdemo">
+      <div class="gdrow">
+        <div><div class="gdl" id="d_word"></div><div class="gdv" style="color:var(--c);font-family:var(--ac)">SOLEIL</div></div>
+        <div><div class="gdl" id="d_rule"></div><div class="gdv" style="color:var(--go)" id="d_rule_v"></div></div>
+      </div>
+      <div class="gdrow">
+        <div><div class="gdl" id="d_ans"></div><div class="gdv" style="color:var(--ok)">SPORT ✓</div></div>
+        <div><div class="gdl" id="d_why_l"></div><div class="gdv" style="font-size:.76rem;color:var(--txd)" id="d_why_v"></div></div>
+      </div>
+    </div>
+    <p class="gx" id="x_s1"></p>
+  </div>
+  <!-- 1: flash -->
+  <div class="gsl"><div class="gi">⚡</div><h1 class="gt" id="t_s2"></h1><p class="gx" id="x_s2"></p></div>
+  <!-- 2: modes -->
+  <div class="gsl"><div class="gi">🎮</div><h1 class="gt" id="t_s3"></h1>
+    <div class="grows">
+      <div class="grow"><span class="gic">🧍</span><div><div class="grnm" id="m_solo_t"></div><div class="grds" id="m_solo_x"></div></div></div>
+      <div class="grow"><span class="gic">👥</span><div><div class="grnm" id="m_local_t"></div><div class="grds" id="m_local_x"></div></div></div>
+      <div class="grow"><span class="gic">🌐</span><div><div class="grnm" id="m_online_t"></div><div class="grds" id="m_online_x"></div></div></div>
+    </div>
+  </div>
+  <!-- 3: onglets -->
+  <div class="gsl"><div class="gi">🧭</div><h1 class="gt" id="t_s4"></h1><p class="gx" id="x_s4" style="margin-bottom:16px"></p>
+    <div class="grows">
+      <div class="grow"><span class="gic">🏠</span><div><div class="grnm" id="tb_home_t"></div><div class="grds" id="tb_home_x"></div></div></div>
+      <div class="grow"><span class="gic">🌍</span><div><div class="grnm" id="tb_world_t"></div><div class="grds" id="tb_world_x"></div></div></div>
+      <div class="grow"><span class="gic">🕹️</span><div><div class="grnm" id="tb_arc_t"></div><div class="grds" id="tb_arc_x"></div></div></div>
+      <div class="grow"><span class="gic">👤</span><div><div class="grnm" id="tb_pro_t"></div><div class="grds" id="tb_pro_x"></div></div></div>
+      <div class="grow"><span class="gic">⚙️</span><div><div class="grnm" id="tb_set_t"></div><div class="grds" id="tb_set_x"></div></div></div>
+    </div>
+  </div>
+  <!-- 4: defi du jour -->
+  <div class="gsl"><div class="gi">🎯</div><h1 class="gt" id="t_s5"></h1><p class="gx" id="x_s5"></p></div>
+  <!-- 5: cartes -->
+  <div class="gsl"><div class="gi">📒</div><h1 class="gt" id="t_s6"></h1><p class="gx" id="x_s6"></p></div>
+  <!-- 6: monnaies -->
+  <div class="gsl"><div class="gi">🪙</div><h1 class="gt" id="t_s7"></h1><p class="gx" id="x_s7"></p></div>
+  <!-- 7: rangs -->
+  <div class="gsl"><div class="gi">🏆</div><h1 class="gt" id="t_s8"></h1><p class="gx" id="x_s8"></p></div>
+  <!-- 8: astuces -->
+  <div class="gsl"><div class="gi">💡</div><h1 class="gt" id="t_s9"></h1>
+    <div class="gtips">
+      <div class="gtip"><span class="gtn">1</span><span id="tip1"></span></div>
+      <div class="gtip"><span class="gtn">2</span><span id="tip2"></span></div>
+      <div class="gtip"><span class="gtn">3</span><span id="tip3"></span></div>
+      <div class="gtip"><span class="gtn">4</span><span id="tip4"></span></div>
+    </div>
+  </div>
+  <!-- 9: fin -->
+  <div class="gsl"><div class="gi">⚡</div><h1 class="gt" id="t_end"></h1><p class="gx" id="x_end"></p></div>
+</div>
+
+<div class="gnav">
+  <button class="gbtn gprev" id="gprev" onclick="prev()">←</button>
+  <button class="gbtn gnext" id="gnext" onclick="next()"></button>
+</div>
+
+<script>
+const TOTAL=10;let cur=0;
+const isFirst=new URLSearchParams(location.search).get('first')==='1';
+const slides=[...document.querySelectorAll('.gsl')];
+const dotsEl=document.getElementById('gdots');
+for(let i=0;i<TOTAL;i++){const d=document.createElement('div');d.className='gdot'+(i===0?' active':'');dotsEl.appendChild(d);}
+
+function fill(){
+  document.getElementById('gskip').textContent=t('guide_skip');
+  // slide 1
+  document.getElementById('t_s1').textContent=t('g_s1_t');
+  document.getElementById('x_s1').innerHTML=t('g_s1_x');
+  document.getElementById('d_word').textContent=t('g_s1_word');
+  document.getElementById('d_rule').textContent=t('g_s1_rule');
+  document.getElementById('d_rule_v').textContent=t('g_s1_rule_ex');
+  document.getElementById('d_ans').textContent=t('g_s1_ans');
+  document.getElementById('d_why_l').textContent=t('g_s1_rule');
+  document.getElementById('d_why_v').textContent=t('g_s1_why');
+  // flash
+  document.getElementById('t_s2').textContent=t('g_s2_t');
+  document.getElementById('x_s2').innerHTML=t('g_s2_x');
+  // modes
+  document.getElementById('t_s3').textContent=t('g_s3_t');
+  document.getElementById('m_solo_t').textContent=t('g_mode_solo_t');
+  document.getElementById('m_solo_x').textContent=t('g_mode_solo_x');
+  document.getElementById('m_local_t').textContent=t('g_mode_local_t');
+  document.getElementById('m_local_x').textContent=t('g_mode_local_x');
+  document.getElementById('m_online_t').textContent=t('g_mode_online_t');
+  document.getElementById('m_online_x').textContent=t('g_mode_online_x');
+  // tabs
+  document.getElementById('t_s4').textContent=t('g_s4_t');
+  document.getElementById('x_s4').innerHTML=t('g_s4_x');
+  document.getElementById('tb_home_t').textContent=t('g_tab_home_t');
+  document.getElementById('tb_home_x').textContent=t('g_tab_home_x');
+  document.getElementById('tb_world_t').textContent=t('g_tab_world_t');
+  document.getElementById('tb_world_x').textContent=t('g_tab_world_x');
+  document.getElementById('tb_arc_t').textContent=t('g_tab_arcade_t');
+  document.getElementById('tb_arc_x').textContent=t('g_tab_arcade_x');
+  document.getElementById('tb_pro_t').textContent=t('g_tab_profile_t');
+  document.getElementById('tb_pro_x').textContent=t('g_tab_profile_x');
+  document.getElementById('tb_set_t').textContent=t('g_tab_settings_t');
+  document.getElementById('tb_set_x').textContent=t('g_tab_settings_x');
+  // daily
+  document.getElementById('t_s5').textContent=t('g_s5_t');
+  document.getElementById('x_s5').innerHTML=t('g_s5_x');
+  // cards
+  document.getElementById('t_s6').textContent=t('g_s6_t');
+  document.getElementById('x_s6').innerHTML=t('g_s6_x');
+  // currencies
+  document.getElementById('t_s7').textContent=t('g_s7_t');
+  document.getElementById('x_s7').innerHTML=t('g_s7_x');
+  // ranks
+  document.getElementById('t_s8').textContent=t('g_s8_t');
+  document.getElementById('x_s8').innerHTML=t('g_s8_x');
+  // tips
+  document.getElementById('t_s9').textContent=t('g_s9_t');
+  document.getElementById('tip1').textContent=t('g_tip1');
+  document.getElementById('tip2').textContent=t('g_tip2');
+  document.getElementById('tip3').textContent=t('g_tip3');
+  document.getElementById('tip4').textContent=t('g_tip4');
+  // end
+  document.getElementById('t_end').textContent=t('g_end_t');
+  document.getElementById('x_end').innerHTML=t('g_end_x');
+  paintNav();
+}
+function paintNav(){
+  document.getElementById('gprev').style.visibility=cur===0?'hidden':'visible';
+  const nx=document.getElementById('gnext');
+  if(cur===TOTAL-1){nx.textContent=isFirst?t('guide_start'):t('guide_back_btn');nx.classList.add('fin');}
+  else{nx.textContent=t('guide_next');nx.classList.remove('fin');}
+}
+function updDots(){dotsEl.querySelectorAll('.gdot').forEach((d,i)=>{d.className='gdot'+(i===cur?' active':i<cur?' done':'');});}
+function show(n){
+  const c=slides[cur];c.classList.add('exit');
+  setTimeout(()=>{c.classList.remove('active','exit');cur=n;slides[cur].classList.add('active');slides[cur].scrollTop=0;updDots();paintNav();},340);
+}
+function next(){try{SFX.navigate();}catch(e){} if(cur<TOTAL-1)show(cur+1); else leave();}
+function prev(){try{SFX.navigate();}catch(e){} if(cur>0)show(cur-1);}
+function leave(){
+  try{SFX.select();}catch(e){}
+  // mark coach as seen so the menu welcome card won't pop again
+  try{localStorage.setItem('fb_coach','1');}catch(e){}
+  const rc=sessionStorage.getItem('fb_room_prefill');
+  if(rc){sessionStorage.removeItem('fb_room_prefill');location.href='lobby.html?room='+encodeURIComponent(rc)+'&join=1';return;}
+  location.href='menu.html';
+}
+window.addEventListener('load',()=>{try{Audio.init();Audio.playMenu();}catch(e){} fill();});
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')next();else if(e.key==='ArrowLeft')prev();else if(e.key==='Escape')leave();});
+</script></body></html>

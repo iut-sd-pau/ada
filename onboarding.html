@@ -88,7 +88,7 @@ function finish(){
   const rc=sessionStorage.getItem('fb_room_prefill');
   setTimeout(()=>{
     if(rc){sessionStorage.removeItem('fb_room_prefill');window.location.href='lobby.html?room='+encodeURIComponent(rc)+'&join=1';}
-    else window.location.href='menu.html';
+    else window.location.href='guide.html?first=1';
   },600);
 }
 document.getElementById('ps').addEventListener('keydown',e=>{if(e.key==='Enter')finish();});

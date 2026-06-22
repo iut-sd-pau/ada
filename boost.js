@@ -89,24 +89,39 @@ function _hslHex(h,s,l){
   return '#'+f(0)+f(8)+f(4);
 }
 (function _genAvatarExtras(){
-  // teintes de peau supplementaires (fantaisie) : ~210 nouvelles
-  for(let i=0;i<210;i++){
+  // teintes de peau supplementaires (fantaisie) : ~490 nouvelles -> 500+ au total
+  for(let i=0;i<490;i++){
     const h=Math.round((i*137.508)%360), s=45+(i%5)*11, l=42+(i%6)*7;
     const c=_hslHex(h,s,l);
     let cost,cur,req;
     if(i<14){cost=40+ (i%4)*15;cur='coin';}
     else if(i<150){cost=60+ (i%6)*15;cur='coin';}
-    else {cost=8+(i%12);cur='gem'; if(i>=195)req='legende'; else if(i>=175)req='champion';}
+    else {cost=8+(i%12);cur='gem'; if(i>=420)req='legende'; else if(i>=320)req='champion'; else if(i>=220)req='elite';}
     AV_SKINS.push({id:'sk_g'+i,c,cost,cur,...(req?{req}:{})});
   }
-  // auras colorees supplementaires : ~235 nouvelles
-  for(let i=0;i<235;i++){
-    const h=Math.round((i*99.7+40)%360), s=70+(i%4)*8, l=52+(i%4)*6;
+  // AURAS supplementaires : 490 nouvelles, CHACUNE avec un VRAI effet anime
+  // (plus de couleurs plates) -> 500+ auras stylees au total.
+  const FX_ALL=['stars','sparks','rings','flame','electric','ice','orbit','nebula','aurora','petals','bubbles','runes','comet','fireflies','snow','vortex','hearts','storm','prism','crystal','halo3'];
+  for(let i=0;i<490;i++){
+    const h=Math.round((i*99.7+40)%360), s=72+(i%4)*8, l=54+(i%4)*6;
     const c=_hslHex(h,s,l);
+    const fx=FX_ALL[i%FX_ALL.length];
     let cost,cur,req;
-    if(i<120){cost=70+ (i%6)*15;cur='coin';}
-    else {cost=10+(i%14);cur='gem'; if(i>=185)req='mythe'; else if(i>=160)req='elite';}
-    AV_AURAS.push({id:'au_g'+i,c,cost,cur,...(req?{req}:{})});
+    if(i<140){cost=120+(i%6)*30;cur='coin';}
+    else if(i<300){cost=12+(i%16);cur='gem';}
+    else {cost=18+(i%24);cur='gem'; if(i>=440)req='mythe'; else if(i>=380)req='legende'; else if(i>=320)req='champion';}
+    AV_AURAS.push({id:'au_g'+i,c,fx,cost,cur,...(req?{req}:{})});
+  }
+})();
+/* palettes de COULEURS (tenue & cheveux) tres etendues : 500+ choix chacune */
+(function _genPalettes(){
+  for(let i=0;i<560;i++){
+    const oc=_hslHex(Math.round((i*137.508)%360),58+(i%5)*8,50+(i%6)*7);
+    if(!AV_OUTFITS.includes(oc))AV_OUTFITS.push(oc);
+  }
+  for(let i=0;i<720;i++){
+    const hc=_hslHex(Math.round((i*137.508+11)%360),48+(i%5)*12,30+(i%9)*7);
+    if(!AV_HAIRCOLORS.includes(hc))AV_HAIRCOLORS.push(hc);
   }
 })();
 /* nombre total d'accessoires (info) */
@@ -166,6 +181,36 @@ function renderAvatar(av,size){
       bg='<circle cx="50" cy="50" r="50" fill="#bfeaff" opacity=".14"/><circle cx="50" cy="50" r="48" fill="none" stroke="#bfeaff" stroke-width="1.5" opacity=".6"/>'+[ [50,5],[88,38],[80,86],[20,86],[12,38] ].map((p,i)=>'<g transform="translate('+p[0]+','+p[1]+')"><path d="M0 -6 V6 M-5 -3 L5 3 M5 -3 L-5 3" stroke="'+ac+'" stroke-width="1.6"/><animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="'+(8+i)+'s" repeatCount="indefinite" additive="sum"/></g>').join('');
     } else if(auraDef.fx==='orbit'){
       bg='<circle cx="50" cy="50" r="47" fill="none" stroke="'+ac+'" stroke-width="1" opacity=".4"/><g><circle cx="50" cy="2" r="3.4" fill="'+ac+'"/><circle cx="97" cy="50" r="2.6" fill="'+ac+'" opacity=".8"/><circle cx="50" cy="98" r="2.2" fill="'+ac+'" opacity=".6"/><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="6s" repeatCount="indefinite"/></g>';
+    } else if(auraDef.fx==='nebula'){
+      bg='<defs><radialGradient id="'+uid+'nb"><stop offset="28%" stop-color="'+ac+'" stop-opacity=".5"/><stop offset="70%" stop-color="'+ac+'" stop-opacity=".12"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><circle cx="50" cy="50" r="50" fill="url(#'+uid+'nb)"><animate attributeName="opacity" values="0.6;1;0.6" dur="4s" repeatCount="indefinite"/></circle>'+[[30,32,7],[68,40,9],[52,68,6]].map((p,i)=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+p[2]+'" fill="'+ac+'" opacity=".18"><animate attributeName="r" values="'+p[2]+';'+(p[2]+3)+';'+p[2]+'" dur="'+(3+i)+'s" repeatCount="indefinite"/></circle>').join('')+[[20,20],[80,18],[84,70],[24,76],[50,10]].map(p=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="1" fill="#fff" opacity=".8"/>').join('');
+    } else if(auraDef.fx==='aurora'){
+      bg='<defs><linearGradient id="'+uid+'ar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+ac+'" stop-opacity="0"/><stop offset="1" stop-color="'+ac+'" stop-opacity=".55"/></linearGradient></defs>'+[0,1,2].map(i=>'<path d="M'+(6+i*30)+' 100 Q'+(20+i*30)+' '+(38-i*6)+' '+(34+i*30)+' 100 Z" fill="url(#'+uid+'ar)"><animate attributeName="opacity" values="0.3;0.85;0.3" dur="'+(2.4+i)+'s" repeatCount="indefinite"/></path>').join('');
+    } else if(auraDef.fx==='petals'){
+      bg=glow(uid+'pt',ac)+'<g>'+[0,60,120,180,240,300].map(a=>'<ellipse cx="50" cy="14" rx="5" ry="11" fill="'+ac+'" opacity=".5" transform="rotate('+a+' 50 50)"/>').join('')+'<animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="14s" repeatCount="indefinite"/></g>';
+    } else if(auraDef.fx==='bubbles'){
+      bg=glow(uid+'bb',ac)+[[22,3],[40,2.4],[58,3.2],[74,2.2],[33,2.6],[66,2.8]].map((p,i)=>'<circle cx="'+p[0]+'" cy="100" r="'+p[1]+'" fill="none" stroke="'+ac+'" stroke-width="1.4" opacity=".75"><animate attributeName="cy" values="100;0" dur="'+(3+i*0.6)+'s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.8;0" dur="'+(3+i*0.6)+'s" repeatCount="indefinite"/></circle>').join('');
+    } else if(auraDef.fx==='runes'){
+      const _sy=['✦','◆','✧','❖','✶','✷','◈','✪'];
+      bg='<circle cx="50" cy="50" r="47" fill="none" stroke="'+ac+'" stroke-width="1" opacity=".35"/><g>'+_sy.map((s,i)=>{const a=i/_sy.length*2*Math.PI,x=50+44*Math.cos(a),y=50+44*Math.sin(a);return '<text x="'+(x-3).toFixed(1)+'" y="'+(y+3).toFixed(1)+'" font-size="7" fill="'+ac+'" opacity=".85">'+s+'</text>';}).join('')+'<animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="18s" repeatCount="indefinite"/></g>';
+    } else if(auraDef.fx==='comet'){
+      bg='<circle cx="50" cy="50" r="46" fill="none" stroke="'+ac+'" stroke-width="0.8" opacity=".3"/><g><path d="M50 4 a46 46 0 0 1 18 5" fill="none" stroke="'+ac+'" stroke-width="3" stroke-linecap="round" opacity=".5"/><circle cx="50" cy="4" r="3.4" fill="'+ac+'"/><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="4.5s" repeatCount="indefinite"/></g>';
+    } else if(auraDef.fx==='fireflies'){
+      bg=glow(uid+'ff',ac)+[[18,30],[80,26],[70,74],[28,78],[50,12],[90,52],[10,58],[52,90]].map((p,i)=>'<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2" fill="'+ac+'"><animate attributeName="opacity" values="0;1;0" dur="'+(1.2+i*0.3)+'s" repeatCount="indefinite"/><animate attributeName="r" values="1.2;2.4;1.2" dur="'+(1.2+i*0.3)+'s" repeatCount="indefinite"/></circle>').join('');
+    } else if(auraDef.fx==='snow'){
+      bg='<circle cx="50" cy="50" r="50" fill="'+ac+'" opacity=".08"/>'+[[20,2],[38,1.6],[55,2.2],[72,1.8],[30,1.4],[64,2]].map((p,i)=>'<circle cx="'+p[0]+'" cy="0" r="'+p[1]+'" fill="#ffffff" opacity=".85"><animate attributeName="cy" values="0;100" dur="'+(4+i*0.7)+'s" repeatCount="indefinite"/></circle>').join('');
+    } else if(auraDef.fx==='vortex'){
+      bg='<g>'+[0,1,2].map(i=>'<path d="M50 50 m-'+(20+i*9)+' 0 a'+(20+i*9)+' '+(20+i*9)+' 0 1 1 '+(40+i*18)+' 0" fill="none" stroke="'+ac+'" stroke-width="'+(2-i*0.4)+'" opacity="'+(0.7-i*0.15)+'"/>').join('')+'<animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="5s" repeatCount="indefinite"/></g>';
+    } else if(auraDef.fx==='hearts'){
+      bg=glow(uid+'ht',ac)+[[24,90],[50,96],[76,90]].map((p,i)=>'<text x="'+p[0]+'" y="'+p[1]+'" font-size="9" fill="'+ac+'">♥<animate attributeName="y" values="'+p[1]+';10" dur="'+(3.5+i)+'s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.9;0" dur="'+(3.5+i)+'s" repeatCount="indefinite"/></text>').join('');
+    } else if(auraDef.fx==='storm'){
+      bg=glow(uid+'sm',ac)+['50 6 44 30 54 30 46 54','18 40 14 56 22 56 16 74','82 40 78 56 86 56 80 74'].map((pts,i)=>'<polyline points="'+pts+'" fill="none" stroke="'+ac+'" stroke-width="2" opacity=".9"><animate attributeName="opacity" values="0;1;0;0.2;0" dur="'+(1.3+i*0.4)+'s" repeatCount="indefinite"/></polyline>').join('');
+    } else if(auraDef.fx==='prism'){
+      const _pc=['#ff4b00','#ffd166','#06d6a0','#00e5ff','#a855f7','#ff5fa2'];
+      bg='<g>'+_pc.map((c,i)=>'<path d="M50 50 L42 4 L58 4 Z" fill="'+c+'" opacity=".3" transform="rotate('+(i*60)+' 50 50)"/>').join('')+'<animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="12s" repeatCount="indefinite"/></g>';
+    } else if(auraDef.fx==='crystal'){
+      bg=glow(uid+'cr',ac)+[0,72,144,216,288].map(a=>'<path d="M50 6 l4 8 -4 8 -4 -8 Z" fill="'+ac+'" opacity=".7" transform="rotate('+a+' 50 50)"><animate attributeName="opacity" values="0.4;0.9;0.4" dur="2.4s" repeatCount="indefinite"/></path>').join('');
+    } else if(auraDef.fx==='halo3'){
+      bg=glow(uid+'h3',ac)+[48,44,40].map((r,i)=>'<circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+ac+'" stroke-width="'+(2.4-i*0.6)+'" opacity="'+(0.7-i*0.18)+'"><animate attributeName="r" values="'+r+';'+(r+3)+';'+r+'" dur="'+(2.6+i*0.5)+'s" repeatCount="indefinite"/></circle>').join('');
     } else if(auraDef.id==='au4'){
       bg=glow(uid+'a4','#ff4b00')+'<circle cx="50" cy="50" r="47" fill="none" stroke="#ff4b00" stroke-width="3" opacity=".55"/><circle cx="50" cy="50" r="43" fill="none" stroke="#ffd166" stroke-width="2" opacity=".45"/>';
     } else { bg=glow(uid+'h',ac)+'<circle cx="50" cy="50" r="48" fill="none" stroke="'+ac+'" stroke-width="2" opacity=".6"/>'; }

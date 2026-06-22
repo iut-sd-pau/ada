@@ -51,6 +51,12 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border:none;border-ra
     <div class="srow"><div style="flex:1"><div class="srl" id="narN"></div><div class="srd" id="narD"></div></div><label class="toggle"><input type="checkbox" id="tNar" onchange="onNar(this.checked)"><span class="tsl"></span></label></div>
     <div class="srow"><div style="flex:1"><div class="srl" id="vibN"></div><div class="srd" id="vibD"></div></div><label class="toggle"><input type="checkbox" id="tVib" onchange="onVib(this.checked)"><span class="tsl"></span></label></div>
   </div>
+  <div class="ssec"><div class="ssl" id="helpL"></div>
+    <div class="srow" style="cursor:pointer" onclick="SFX.navigate();location.href='guide.html'">
+      <div style="flex:1"><div class="srl" id="guideN"></div><div class="srd" id="guideD"></div></div>
+      <span style="font-size:1.3rem">📖</span>
+    </div>
+  </div>
   <div class="ssec"><div class="ssl" id="tstL"></div>
     <div class="tg">
       <button class="tb2" onclick="Audio.init();SFX.correct()">✅</button>
@@ -103,6 +109,9 @@ function renderTexts(){
   document.getElementById('narN').textContent=t('set_narrator');document.getElementById('narD').textContent=t('set_narrator_d');
   document.getElementById('vibN').textContent=t('set_vibrate');document.getElementById('vibD').textContent=t('set_vibrate_d');
   document.getElementById('tstL').textContent=t('set_test_lbl');
+  document.getElementById('helpL').textContent=t('set_help_lbl');
+  document.getElementById('guideN').textContent=t('set_guide_name');
+  document.getElementById('guideD').textContent=t('set_guide_desc');
   document.getElementById('musnote').textContent=getLang()==='en'
     ?"Music is generated live in original styles. Real TikTok/artist tracks can't be embedded (copyright)."
     :"Les musiques sont generees en direct dans des styles originaux. Les vraies pistes TikTok/artistes ne peuvent pas etre integrees (droits d'auteur).";

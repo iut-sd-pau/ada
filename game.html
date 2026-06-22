@@ -228,6 +228,8 @@ const ALL_RULES=[
   {id:'no_e_long',check:w=>!foldAccents(w).includes('e')&&w.length>=6},
   {id:'six_plus_double',check:w=>w.length>=6&&/(.)\1/.test(foldAccents(w))},
 ];
+/* Mode ENFANT : pas de regle compliquee, il suffit d'un mot qui commence pareil. */
+const KIDS_RULE={id:'kids',check:()=>true};
 /* une regle est-elle satisfiable pour un mot commencant par la lettre `fl` ? */
 function ruleFeasible(id,fl){
   switch(id){
@@ -250,14 +252,16 @@ const HARD_RULES=['long7','long8','three_vowels','no_e_long','no_a','no_e','no_i
    easy reste accessible, mais normal/hard sont nettement plus durs et
    un nouveau palier "extreme" arrive. Le temps diminue aussi au fil
    des manches (rampe), donc une partie monte en pression. */
-const DTIME={easy:8,normal:5,hard:3,extreme:2,daily:5}, DXP={easy:8,normal:14,hard:26,extreme:45,daily:30}, MAX_R=6;
+const DTIME={kids:14,easy:8,normal:5,hard:3,extreme:2,daily:5}, DXP={kids:8,easy:8,normal:14,hard:26,extreme:45,daily:30}, MAX_R=6;
 let L=null,_tiv=null;
 
 function initLocal(){
   const cfg=JSON.parse(sessionStorage.getItem('fb_config')||'{}');
   const MODE=cfg.mode||'solo',DIFF=cfg.diff||'normal',PLAYERS=cfg.players||['Agent'];
   L={MODE,DIFF,players:[...PLAYERS],scores:{},streaks:{},idx:0,round:1,tLeft:5,fp:false,word:'',rule:null,
-     correct:0,missed:0,bestStreak:0,xpEarned:0,gemsEarned:0,fastAnswers:0,used:new Set()};
+     correct:0,missed:0,bestStreak:0,xpEarned:0,gemsEarned:0,fastAnswers:0,used:new Set(),roundLog:[]};
+  if(MODE==='daily'&&typeof seededRng==='function')L.drng=seededRng(dailySeedStr());
+  L.startTs=Date.now();
   L.players.forEach(p=>{L.scores[p]=0;L.streaks[p]=0;});
   const profile=loadProfile(),r=getRank(profile.xp);
   document.getElementById('hrt').textContent=MAX_R;
@@ -290,7 +294,7 @@ function useJoker(kind){
   refreshJokers();SFX.coin();
   if(kind==='time'){L.tLeft+=5;showToast(t('jk_time'),'info');}
   else if(kind==='hint'){const m=L.word.toLowerCase();showToast(t('jk_hint_txt',{P:m[0].toUpperCase()}),'info',3000);}
-  else if(kind==='skip'){stopTimerL();showToast(t('jk_skip'),'info');nextTurnL();}
+  else if(kind==='skip'){stopTimerL();L.roundLog.push(null);showToast(t('jk_skip'),'info');nextTurnL();}
 }
 function startCountdownLocal(){
   let c=3;const ov=document.getElementById('cdov'),num=document.getElementById('cdn');
@@ -316,18 +320,27 @@ function pickRuleL(round,word){
 }
 /* temps de base avec rampe : -1s toutes les 2 manches (plancher) */
 function baseTime(){
-  const floors={easy:5,normal:3,hard:2,extreme:1,daily:4};
+  const floors={kids:11,easy:5,normal:3,hard:2,extreme:1,daily:4};
   const base=DTIME[L.DIFF]||5;
   const deckT=(typeof deckTime==='function')?deckTime():0; // bonus de temps des cartes du deck
   return deckT+Math.max(floors[L.DIFF]||3, base-Math.floor((L.round-1)/2));
 }
-function flashBonus(){return ({easy:9,normal:7,hard:5,extreme:4,daily:7})[L.DIFF]||7;}
+function flashBonus(){return ({kids:12,easy:9,normal:7,hard:5,extreme:4,daily:7})[L.DIFF]||7;}
 function newRoundL(){
   if(L.round>MAX_R){endGameLocal();return;}
   L.fp=false;
   let pool=getGameWords(lang).filter(w=>!L.used.has(w));if(!pool.length){L.used.clear();pool=getGameWords(lang);}
-  L.word=pickRandom(pool);L.used.add(L.word);
-  if(L.MODE==='daily'){const ds=sessionStorage.getItem('fb_daily_rule');const found=ALL_RULES.find(r=>t('rule_'+r.id)===ds);const fl=foldAccents(L.word.toLowerCase())[0];L.rule=(found&&ruleFeasible(found.id,fl))?found:pickRuleL(L.round,L.word);}
+  if(L.MODE==='daily'&&L.drng){L.word=seededPick(pool,L.drng);}
+  else if(L.DIFF==='kids'){let kp=pool.filter(w=>w.length>=3&&w.length<=5);if(!kp.length)kp=pool;L.word=pickRandom(kp);}
+  else{L.word=pickRandom(pool);}
+  L.used.add(L.word);
+  if(L.MODE==='daily'){
+    const ds=sessionStorage.getItem('fb_daily_rule');const found=ALL_RULES.find(r=>t('rule_'+r.id)===ds);
+    const fl=foldAccents(L.word.toLowerCase())[0];
+    if(found&&ruleFeasible(found.id,fl)){L.rule=found;}
+    else{const feas=ALL_RULES.filter(r=>ruleFeasible(r.id,fl));L.rule=L.drng?seededPick(feas.length?feas:ALL_RULES,L.drng):pickRuleL(L.round,L.word);}
+  }
+  else if(L.DIFF==='kids'){L.rule=KIDS_RULE;}
   else L.rule=pickRuleL(L.round,L.word);
   L.tLeft=baseTime();
   const wEl=document.getElementById('gw');wEl.style.cssText='opacity:0;transform:scale(.65);transition:none';
@@ -369,6 +382,7 @@ async function submitAns(){ if(ONLINE){return onSubmitClick();}
   else if(a[0]!==m[0]){ok=false;msg=t('game_toast_letter',{L:L.word[0].toUpperCase()});}
   else if(!L.rule.check(a)){ok=false;msg=t('game_toast_rule');}
   if(ok){
+    L.roundLog.push(true);
     L.scores[player]++;L.streaks[player]++;L.correct++;L.xpEarned+=(DXP[L.DIFF]||15);
     if(L.tLeft>=4)L.fastAnswers++;if(L.streaks[player]>L.bestStreak)L.bestStreak=L.streaks[player];
     SFX.correct();vibrate([30,20,60]);showFB('✅');
@@ -377,13 +391,13 @@ async function submitAns(){ if(ONLINE){return onSubmitClick();}
     else if(s===5){narrate('streak5');SFX.streak();L.gemsEarned+=1;showToast('💎 +1 gemme (série ×5)','success');}
     else if(s===3)narrate('streak3');else narrate('correct');
     popScoreL();
-  }else{L.streaks[player]=0;L.missed++;SFX.wrong();vibrate([80,40,80]);showFB('❌');
+  }else{L.roundLog.push(false);L.streaks[player]=0;L.missed++;SFX.wrong();vibrate([80,40,80]);showFB('❌');
     document.getElementById('wcard').classList.add('shake');setTimeout(()=>document.getElementById('wcard').classList.remove('shake'),340);
     showToast(msg,'danger');narrate('wrong');}
   hint.textContent='';document.getElementById('ai').className='ai';sub.disabled=false;updStreakL();nextTurnL();
 }
 function nextTurnL(){L.idx++;if(L.idx>=L.players.length){L.idx=0;L.round++;}setTimeout(newRoundL,1100);}
-function loseTurnL(msg){const p=L.players[L.idx];L.streaks[p]=0;L.missed++;showFB('💀');showToast(msg,'danger');SFX.lose();vibrate([100,50,200]);narrate('wrong');updStreakL();nextTurnL();}
+function loseTurnL(msg){const p=L.players[L.idx];L.roundLog.push(false);L.streaks[p]=0;L.missed++;showFB('💀');showToast(msg,'danger');SFX.lose();vibrate([100,50,200]);narrate('wrong');updStreakL();nextTurnL();}
 function updHUDL(){const p=L.players[L.idx];document.getElementById('hav').textContent=p[0].toUpperCase();document.getElementById('hname').textContent=p;document.getElementById('hr').textContent=L.round;document.getElementById('hscn').textContent=L.scores[p];document.getElementById('hpf').style.width=((L.round-1)/MAX_R*100)+'%';}
 function popScoreL(){const el=document.getElementById('hscn');el.textContent=L.scores[L.players[L.idx]];el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}
 function updStreakL(){const p=L.players[L.idx],s=L.streaks[p]||0,bar=document.getElementById('sbar');bar.innerHTML='';for(let i=0;i<5;i++){const d=document.createElement('div');d.className='sd'+(i<s?' on':'');bar.appendChild(d);}}
@@ -410,8 +424,7 @@ function endGameLocal(){
   gemsManual+=(getRank(profile.xp).gemDrip||0);         // goutte de grade (passif, avantage de grade)
   if(typeof deckGem==='function')gemsManual+=deckGem(profile); // gemmes des cartes du deck
   profile.gems=gemStart+gemsManual;
-  if(L.MODE==='daily'){profile.dailyCount=(profile.dailyCount||0)+1;profile.lastDaily=new Date().toDateString();}
-  let winner=L.players[0],maxPts=-1;L.players.forEach(p=>{if(L.scores[p]>maxPts){maxPts=L.scores[p];winner=p;}});
+  if(L.MODE==='daily'){profile.dailyCount=(profile.dailyCount||0)+1;profile.lastDaily=new Date().toDateString();}  let winner=L.players[0],maxPts=-1;L.players.forEach(p=>{if(L.scores[p]>maxPts){maxPts=L.scores[p];winner=p;}});
   if(L.players.length>1&&L.scores[L.players[0]]===maxPts)profile.wins++;
   saveProfile(profile);
   // XP via addXP() => applique le multiplicateur de grade ET declenche les recompenses de montee (gemmes/jokers/grade)
@@ -421,7 +434,10 @@ function endGameLocal(){
   checkAchievements(after);saveProfile(after);
   const xpEarned=after.xp-xpStart, gemsWon=(after.gems||0)-gemStart;
   if(L.MODE==='solo'||L.MODE==='daily')fbSetScore(after.pseudo,after.xp,getRank(after.xp).id);
-  sessionStorage.setItem('fb_results',JSON.stringify({mode:L.MODE,players:L.players,scores:L.scores,winner,xpEarned,coinsWon,gemsWon,correct:L.correct,missed:L.missed,bestStreak:L.bestStreak,onlinePlayers:[]}));
+  const _dseed=(typeof dailySeedStr==='function')?dailySeedStr():'';
+  const _dtime=L.startTs?(Date.now()-L.startTs):0;
+  if(L.MODE==='daily'&&typeof fbSetDailyScore==='function'&&fbReady())fbSetDailyScore(_dseed,after.pseudo,L.correct,MAX_R,_dtime,L.bestStreak);
+  sessionStorage.setItem('fb_results',JSON.stringify({mode:L.MODE,players:L.players,scores:L.scores,winner,xpEarned,coinsWon,gemsWon,correct:L.correct,missed:L.missed,bestStreak:L.bestStreak,onlinePlayers:[],daily:L.MODE==='daily',dailyNum:(typeof dailyNumber==='function'?dailyNumber():0),dailySeed:_dseed,timeMs:_dtime,totalRounds:MAX_R,roundLog:L.roundLog}));
   Audio.playResults(maxPts>=3);setTimeout(()=>window.location.href='results.html',900);
 }
 
