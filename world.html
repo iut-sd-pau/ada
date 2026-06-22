@@ -83,7 +83,7 @@ window.addEventListener('load',async()=>{
 async function loadLB(profile,r){
   let data=await fbGetLB(25);const myName=profile.pseudo||'Agent';
   if(!data)data=[];
-  if(!data.find(p=>p.pseudo===myName))data.push({pseudo:myName,xp:profile.xp,rank:r.id,isMe:true});
+  if(!data.find(p=>p.pseudo===myName))data.push({pseudo:myName,xp:profile.xp,rank:r.id,avatar:profile.avatar,isMe:true});
   else data.find(p=>p.pseudo===myName).isMe=true;
   data.sort((a,b)=>b.xp-a.xp);
   const myPos=data.findIndex(p=>p.isMe)+1;
@@ -91,7 +91,7 @@ async function loadLB(profile,r){
   document.getElementById('lbload').style.display='none';
   document.getElementById('lblist').innerHTML=data.slice(0,20).map((p,i)=>{
     const rk=RANKS.find(x=>x.id===p.rank)||RANKS[0];
-    return'<div class="lbrow '+(p.isMe?'me':'')+'"><div class="lbp">'+(i===0?'👑':i===1?'🥈':i===2?'🥉':i+1)+'</div><div class="lbav">'+(p.pseudo||'?')[0].toUpperCase()+'</div><div class="lbi"><div class="lbn">'+(p.pseudo||'?')+(p.isMe?' ('+t('res_you')+')':'')+'</div><div class="lbr">'+rk.icon+' '+t('rank_'+rk.id)+'</div></div><div class="lbx">'+p.xp+' XP</div></div>';
+    return'<div class="lbrow '+(p.isMe?'me':'')+'"><div class="lbp">'+(i===0?'👑':i===1?'🥈':i===2?'🥉':i+1)+'</div><div class="lbav" style="background:none;border:none;padding:0">'+(p.avatar&&typeof renderAvatar==='function'?renderAvatar(p.avatar,32):(p.pseudo||'?')[0].toUpperCase())+'</div><div class="lbi"><div class="lbn">'+(p.pseudo||'?')+(p.isMe?' ('+t('res_you')+')':'')+'</div><div class="lbr">'+rk.icon+' '+t('rank_'+rk.id)+'</div></div><div class="lbx">'+p.xp+' XP</div></div>';
   }).join('');
 }
 async function loadRooms(){

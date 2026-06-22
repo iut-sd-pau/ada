@@ -64,7 +64,8 @@ function myUid(){
 ============================================================ */
 async function fbSetScore(pseudo,xp,rankId){
   if(!_db||!pseudo)return;
-  try{await _db.ref('lb/'+myUid()).set({pseudo,xp,rank:rankId,ts:Date.now()});}catch{}
+  let av=null;try{av=loadProfile().avatar;}catch(e){}
+  try{await _db.ref('lb/'+myUid()).set({pseudo,xp,rank:rankId,avatar:av,ts:Date.now()});}catch{}
 }
 async function fbGetLB(n=30){
   if(!_db)return null;

@@ -415,7 +415,7 @@ function endGameLocal(){
     }
   }
   const xpStart=profile.xp,gemStart=(profile.gems||0);
-  let coinsWon=Math.round(L.correct*2*(L.MODE==='daily'?2:1));
+  let coinsWon=Math.round(L.correct*2*(L.MODE==='daily'?2:1)*(typeof coinMult==='function'?coinMult(profile):1));
   profile.coins=(profile.coins||0)+coinsWon;
   // ---- Gemmes (#5 : plusieurs sources) ----
   let gemsManual=L.gemsEarned||0;                       // series en cours de partie
@@ -592,7 +592,7 @@ function finishOnline(g){
   const winner=st[0];const iWon=winner&&winner.uid===myUidV;
   const profile=loadProfile();profile.gamesPlayed++;
   const xpStart=profile.xp,gemStart=(profile.gems||0);
-  let coinsWon=myScore*3+(iWon?20:0);profile.coins=(profile.coins||0)+coinsWon;
+  let coinsWon=Math.round((myScore*3+(iWon?20:0))*(typeof coinMult==='function'?coinMult(profile):1));profile.coins=(profile.coins||0)+coinsWon;
   if(iWon){profile.wins++;profile.onlineWins=(profile.onlineWins||0)+1;}
   // ---- Gemmes online (#5) ----
   let gemsManual=0;
